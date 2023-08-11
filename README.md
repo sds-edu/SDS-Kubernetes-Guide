@@ -80,7 +80,7 @@ To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 
 In this segment of the guide, we are focusing on the command line for deploying an application. However, you can also use the [Kubernetes dashboard](https://minikube.sigs.k8s.io/docs/handbook/dashboard/) to view your cluster. 
 
-To see al nodes that can be used to host the applications, use the `kubectl get nodes` command. You should get something similar to this:
+To see all nodes that can be used to host the applications, use the `kubectl get nodes` command. You should get something similar to this:
 ```bash
 NAME       STATUS   ROLES           AGE   VERSION
 minikube   Ready    control-plane   21m   v1.27.3
@@ -442,3 +442,187 @@ This is because of networking restrictions in Docker Desktop. You can't directly
 ![SSH From Pod to Host](images/SSHFromPodToHost.png)
 
  You can close the tunnel by pressing CTRL+C before moving on.
+
+ To delete a service, use the `kubectl delete service` command:
+ ```bash
+kubectl delete service -l app=kubernetes-bootcamp
+```
+To confirm that the service is deleted, run the `kubectl get services` command again:
+```bash
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   4h13m
+```
+The service is no longer listed. It is no longer accessible from outside the cluster. However, the application is still running inside the pod. 
+
+<details markdown="block">
+<summary>❓<b>How do you check if the application is still running in the pod?</b></summary>
+
+```bash
+kubectl exec -ti <PODNAME> -- curl localhost:8080
+```
+</details>
+<br>
+
+To shut down the application, you have to delete the deployment.
+```bash
+kubectl delete deployment kubernetes-bootcamp
+```
+
+## 1.6. Scale and Update the App
+In this section, you will learn how to scale up the application and update it to a new version. You will also learn how to roll back the update.
+
+### 1.6.1. Scale Up
+Scaling up in Kubernetes involves increasing the number of pod replicas for a deployment or application to handle higher demand or workload. Kubernetes allows you to dynamically adjust the number of instances to distribute traffic and workload more effectively, ensuring optimal performance and responsiveness. This helps accommodate increased user activity or resource requirements without manual intervention.
+<sup> This text was generated with the help of [ChatGPT](https://chat.openai.com/)</sup> 
+
+Since we deleted the deployment, we need to create a new one before we can scale it up. To create a new deployment:
+```bash
+kubectl create deployment kubernetes-bootcamp --image=gcr.io/google-samples/kubernetes-bootcamp:v1
+```
+Then expose it:
+```bash
+kubectl expose deployment/kubernetes-bootcamp --type="NodePort" --port 8080
+```
+<details markdown="block">
+<summary>❓<b>How do you list your deployments?</b></summary>
+
+```bash
+kubectl get deployments
+```
+
+</details>
+<br>
+
+Your list of deployments should look like this:
+```bash
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+kubernetes-bootcamp   1/1     1            1           8s
+```
+
+You should have one pod up and running. 
+This output displays information about a deployment named `kubernetes-bootcamp`. It shows that there is currently 1 replica of the application running and it's ready to serve. The `UP-TO-DATE` and `AVAILABLE` columns both indicate that 1 out of 1 desired replicas is available and up-to-date. See the replica set for more details about the desired state:
+```bash
+kubectl get rs
+```
+Right now there is 1 replica:
+```bash
+NAME                             DESIRED   CURRENT   READY   AGE
+kubernetes-bootcamp-855d5cc575   1         1         1       4m48s
+```
+It indicates that there's a desired goal of having 1 replica, which is successfully met since there is currently 1 replica running and ready. 
+
+Lets use the `kubectl scale` command to scale up the application:
+```bash
+kubectl scale deployments/kubernetes-bootcamp --replicas=4
+```
+This will scale up the deployment to 4 replicas. To check if it worked, run:
+```bash
+kubectl get deployments
+```
+Output:
+```bash
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+kubernetes-bootcamp   4/4     4            4           7m37s
+```
+Yay! You now have 4 replicas of the application up and running. Do you think the number of pods has changed? Let's check:
+```bash
+kubectl get pods -o wide
+```
+Output:
+```bash
+NAME                                   READY   STATUS    RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+kubernetes-bootcamp-855d5cc575-2rzsr   1/1     Running   0          71s     10.244.0.10   minikube   <none>           <none>
+kubernetes-bootcamp-855d5cc575-gksg8   1/1     Running   0          71s     10.244.0.8    minikube   <none>           <none>
+kubernetes-bootcamp-855d5cc575-qzx89   1/1     Running   0          8m44s   10.244.0.7    minikube   <none>           <none>
+kubernetes-bootcamp-855d5cc575-vfgmt   1/1     Running   0          71s     10.244.0.9    minikube   <none>           <none>
+```
+The number of pods has changed. There are now 4 pods running. They have different IP addresses. Check the deployment logs to see this change being rolled out:
+```bash
+kubectl describe deployments/kubernetes-bootcamp
+```
+<details markdown="block">
+<summary>🔍<b>Click here to see the output.</b></summary>
+
+```bash
+Name:                   kubernetes-bootcamp
+Namespace:              default
+CreationTimestamp:      Fri, 11 Aug 2023 15:58:13 +0800
+Labels:                 app=kubernetes-bootcamp
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=kubernetes-bootcamp
+Replicas:               4 desired | 4 updated | 4 total | 4 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=kubernetes-bootcamp
+  Containers:
+   kubernetes-bootcamp:
+    Image:        gcr.io/google-samples/kubernetes-bootcamp:v1
+    Port:         <none>
+    Host Port:    <none>
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Progressing    True    NewReplicaSetAvailable
+  Available      True    MinimumReplicasAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   kubernetes-bootcamp-855d5cc575 (4/4 replicas created)
+Events:
+  Type    Reason             Age    From                   Message
+  ----    ------             ----   ----                   -------
+  Normal  ScalingReplicaSet  10m    deployment-controller  Scaled up replica set kubernetes-bootcamp-855d5cc575 to 1
+  Normal  ScalingReplicaSet  3m21s  deployment-controller  Scaled up replica set kubernetes-bootcamp-855d5cc575 to 4 from 1
+```
+</details>
+
+The events log shows that the deployment controller scaled up the deployment to 4 replicas. 
+
+### 1.6.2. Load Balancing
+Load balancing in Kubernetes involves distributing incoming network traffic across multiple instances of an application to ensure efficient resource utilization, prevent overloading, and maintain high availability. Kubernetes automates load balancing for services by intelligently routing traffic to healthy pods and providing dynamic scaling to handle varying workloads. This helps optimize application performance, enhance fault tolerance, and adapt to changing demands.
+<sup> This text was generated with the help of [ChatGPT](https://chat.openai.com/)</sup> 
+
+Find the exposed IP and Port:
+```bash
+kubectl describe services/kubernetes-bootcamp
+```
+
+<details markdown="block">
+<summary>🔍<b>Click here to see the output.</b></summary>
+
+```bash
+Name:                     kubernetes-bootcamp
+Namespace:                default
+Labels:                   app=kubernetes-bootcamp
+Annotations:              <none>
+Selector:                 app=kubernetes-bootcamp
+Type:                     NodePort
+IP Family Policy:         SingleStack
+IP Families:              IPv4
+IP:                       10.106.15.197
+IPs:                      10.106.15.197
+Port:                     <unset>  8080/TCP
+TargetPort:               8080/TCP
+NodePort:                 <unset>  31264/TCP
+Endpoints:                10.244.0.10:8080,10.244.0.7:8080,10.244.0.8:8080 + 1 more...
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+```
+</details>
+
+As seen from the output above, the <NODEPORT> is `31264`. Then using the minikube ip, we can access the application:
+```bash
+curl <MINIKUBE_IP>:<NODEPORT>
+```
+<details markdown="block">
+<summary>❓<b>Do you remember how to find the minikube ip?</b></summary>
+
+Run:
+```bash
+minikube ip
+```
+</details>
