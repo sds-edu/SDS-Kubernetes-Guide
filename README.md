@@ -63,7 +63,7 @@ This section will guide you through the process of deploying a local Kubernetes 
 
 For this guide, we recommend the Docker driver for Minikube. If you would like to use a different driver (at your own risk), you can find the instructions [here](https://minikube.sigs.k8s.io/docs/drivers/).
 
-> ⏰**Reminder**: Start the Docker daemon and enable the Kubernetes service in Docker Desktop before proceeding. ![Enable Kubs](images/enablekubs.png)
+> ⏰**Reminder**: Start the Docker daemon (by opening Docker Desktop) and enable the Kubernetes service in Docker Desktop before proceeding. ![Enable Kubs](images/enablekubs.png)
 
 
 Start the cluster by running:
@@ -469,7 +469,7 @@ kubectl delete deployment kubernetes-bootcamp
 ```
 
 ## 1.6. Scale and Update the App
-In this section, you will learn how to scale up the application and update it to a new version. You will also learn how to roll back the update.
+In this section, you will learn how to scale up the application and update it to a new version. 
 
 ### 1.6.1. Scale Up
 Scaling up in Kubernetes involves increasing the number of pod replicas for a deployment or application to handle higher demand or workload. Kubernetes allows you to dynamically adjust the number of instances to distribute traffic and workload more effectively, ensuring optimal performance and responsiveness. This helps accommodate increased user activity or resource requirements without manual intervention.
@@ -528,6 +528,13 @@ Yay! You now have 4 replicas of the application up and running. Do you think the
 ```bash
 kubectl get pods -o wide
 ```
+<details markdown="block">
+<summary>🔍<b>Click here to find out what the -o wide flag does.</b></summary>
+
+The command kubectl `get pods -o wide`, the `-o wide` specifies that you want to display the output in a wider format that includes additional information about the pods, such as the node they're running on and their IP addresses. If you don't specify `-o`, the default output format will be used.
+</details>
+<br>
+
 Output:
 ```bash
 NAME                                   READY   STATUS    RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
@@ -626,3 +633,113 @@ Run:
 minikube ip
 ```
 </details>
+
+If this works for you, try executing the command multiple times, you should hit a different pod with every request. This is because the service randomly distributes requests to each pod.
+
+If you are using Docker Desktop (which you most likely are). You **might** see this error:
+```bash
+curl : Unable to connect to the remote server
+At line:1 char:1
++ curl 192.168.67.2:31264
++ ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], Web
+   Exception
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+```
+This is because of networking restrictions in Docker Desktop. You can't directly reach pods from your host by default.
+<details markdown="block">
+<summary>❓<b>How do you overcome this error?</b></summary>
+
+```bash
+minikube service kubernetes-bootcamp
+```
+</details>
+<br>
+
+This creates an SSH tunnel from the pod to your host and opens a browser window connected to the service.
+
+Press CTRL+C to close the SSH terminal. Run the command multiple times to see how the service randomly distributes requests to each pod.
+
+![RandomServicePods](images/RandomServicePods.png)
+
+<sup>The image above shows the service randomly distributing requests to each pod when you run the command multiple times.</sup>
+
+### 1.6.3. Scale Down
+Scaling down in Kubernetes means reducing the number of pod replicas for a deployment or application. This is done to conserve resources when demand decreases. Kubernetes allows you to automatically adjust the number of instances, helping to optimize resource usage and improve efficiency while maintaining the desired level of performance.
+
+Scale down the replicas to 2:
+```bash
+kubectl scale deployments/kubernetes-bootcamp --replicas=2
+```
+Check if the change was applied to the deployments:
+```bash
+kubectl get deployments
+```
+You should see the number of replicas change to 2:
+```bash
+NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+kubernetes-bootcamp   2/2     2            2           86m
+```
+Check the pods:
+```bash
+kubectl get pods -o wide
+```
+You should see that the number of pods has changed to 2:
+```bash
+NAME                                   READY   STATUS    RESTARTS   AGE   IP           NODE       NOMINATED NODE   READINESS GATES
+kubernetes-bootcamp-855d5cc575-gksg8   1/1     Running   0          79m   10.244.0.8   minikube   <none>           <none>
+kubernetes-bootcamp-855d5cc575-qzx89   1/1     Running   0          86m   10.244.0.7   minikube   <none>           <none>
+```
+
+### 1.6.4. Update the Application
+Kubernetes allows you to update your application without downtime. This is done by updating the container image of the deployment.
+
+Look at the current image of the deployment:
+```bash
+kubectl describe pods
+```
+The image should be `gcr.io/google-samples/kubernetes-bootcamp:v1`.
+
+Update the image of the deployment to [jocatalin/kubernetes-bootcamp:v2
+](https://hub.docker.com/layers/jocatalin/kubernetes-bootcamp/v2/images/sha256-fb1a3ced00cecfc1f83f18ab5cd14199e30adc1b49aa4244f5d65ad3f5feb2a5?context=explore):
+
+```bash
+kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=jocatalin/kubernetes-bootcamp:v2
+```
+
+Check the status of the new pods with `kubectl get pods`:
+```bash
+NAME                                   READY   STATUS    RESTARTS   AGE
+kubernetes-bootcamp-69b6f9fbb9-2wcnc   1/1     Running   0          50s
+kubernetes-bootcamp-69b6f9fbb9-kxw9l   1/1     Running   0          56s
+```
+
+If you check quick enough, you will be able to see the old pods terminating and the new pods starting.
+
+Verify the update by checking if the app is running. Use the commands from (this section)[#162-load-balancing] to do so.
+
+You may also confirm this update by:
+```bash
+kubectl rollout status deployments/kubernetes-bootcamp
+```
+This should return a messaging stating that the deployment was successfully rolled out. View the current image of the app by running `kubectl describe pods` and you should see that the image is now `jocatalin/kubernetes-bootcamp:v2`.
+
+Yay! You have successfully completed this section on the basics of Kubernetes. You can now move on to the next section to learn about how to deploy a React + Express JS application using Kubernetes + Docker.
+
+# 2. Deploying a React + Express JS Application using Kubernetes + Docker
+_Please refer to the Docker guide for CS3219 for more information on how to build a React + Express JS application._ This section will focus on how to deploy the application using Kubernetes and Docker.
+
+We have learnt how Docker allows you to package an application and its dependencies into a standardized container, which includes everything needed to run the application – code, runtime, libraries, and settings. We have also learnt that Kubernetes automates the deployment, scaling, and management of containerized applications.
+
+When used together, Docker and Kubernetes provide a powerful solution for application deployment. Docker images serve as the building blocks for your application, ensuring consistency and reproducibility. Kubernetes manages these Docker containers at scale, handling tasks like load balancing, automatic scaling, self-healing, and rolling updates. It allows you to define the desired state of your application, and Kubernetes takes care of maintaining that state, making deployment and management more efficient and reliable.
+
+<sup> This text was generated with the help of [ChatGPT](https://chat.openai.com/).</sup>
+
+Before we begin, ensure that you have the following installed:
+- [Docker](https://docs.docker.com/get-docker/)
+- [Minikube](https://minikube.sigs.k8s.io/docs/start/)
+- [Node.js LTS](https://nodejs.org/en/download/)
+
+> ⏰**Reminder**: Start the Docker daemon (by opening Docker Desktop) and enable the Kubernetes service in Docker Desktop before proceeding. ![Enable Kubs](images/enablekubs.png)
+
+If you haven't already, please complete the section on Dockerizing a React + Express JS application before proceeding. This can be found in the Docker guide for CS3219.
