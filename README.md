@@ -13,7 +13,7 @@ However, as the demands of scalability and intricacy increase, the containerised
 
 <sup> The above text was partially generated with the help of [ChatGPT](https://chat.openai.com/)</sup>
 
-<details open markdown="block">
+<details markdown="block">
 <summary> <b> 🔍 Click here to find out more on why Kubernetes is widely used. </b></summary>
 
 Kubernetes simplifies the deployment process for applications. It also provides tools that help make the application robust. The following table describes the key features and benefits of Kubernetes.
@@ -63,7 +63,7 @@ This section will guide you through the process of deploying a local Kubernetes 
 
 For this guide, we recommend the Docker driver for Minikube. If you would like to use a different driver (at your own risk), you can find the instructions [here](https://minikube.sigs.k8s.io/docs/drivers/).
 
-> ⏰**Reminder**: Enable the Kubernetes service in Docker Desktop before proceeding. ![Enable Kubs](images/enablekubs.png)
+> ⏰**Reminder**: Start the Docker daemon and enable the Kubernetes service in Docker Desktop before proceeding. ![Enable Kubs](images/enablekubs.png)
 
 
 Start the cluster by running:
@@ -106,3 +106,182 @@ kubernetes-bootcamp   1/1     1            1           51s
 ```
 It can be seen that there is 1 deployment running a single instance of the application. It runs inside a Docker container in the node.
 
+> 📝**Note**: Kubernetes pods have a private network. They're visible within the cluster but not outside. When employing `kubectl`, we connect via an API endpoint to communicate with our application. 
+The `kubectl` command is capable of generating a proxy, facilitating communication into the private network across the entire cluster. To halt the proxy, you can use control-C, and it will operate without displaying any output while active. 
+
+<sup> This note was generated with the help of [ChatGPT](https://chat.openai.com/)</sup>
+
+Open another terminal to run the proxy:
+```bash
+kubectl proxy
+```
+You will see something similar to this:
+```bash
+Starting to serve on 127.0.0.1:8001
+```
+Take note of the port number. In this case, it is 8001.
+
+This runs the proxy in the background, return to your original terminal window. Now the host machine (your computer) can communicate with the Kubernetes cluster. You can access the APIs hosted through the proxy endpoint. Try querying the version through the API by running:
+```bash
+curl http://localhost:8001/version
+```
+
+> ⏰**Reminder**:Remember to replace the port number with the one you got from running `kubectl proxy`. Also note that the proxy must be running for this to work.
+
+<details markdown="block">
+<summary> <b>🔍 Click here to see the output.</b></summary>
+
+```bash
+StatusCode        : 200
+StatusDescription : OK
+Content           : {
+                      "major": "1",
+                      "minor": "27",
+                      "gitVersion": "v1.27.3",
+                      "gitCommit": "25b4e43193bcda6c7328a6d147b1fb73a33f1598",
+                      "gitTreeState": "clean",
+                      "buildDate": "2023-06-14T09:47:40Z",
+                      "goVersion"...
+RawContent        : HTTP/1.1 200 OK
+                    Audit-Id: 5d958417-89e4-4835-aaf3-ae3f3530d535
+                    X-Kubernetes-Pf-Flowschema-Uid: b4748383-acc3-468c-8172-90174f345c5d
+                    X-Kubernetes-Pf-Prioritylevel-Uid: 0c632f7f-10da-49f9-8131-f80ef3...
+Forms             : {}
+Headers           : {[Audit-Id, 5d958417-89e4-4835-aaf3-ae3f3530d535], [X-Kubernetes-Pf-Flowschema-Uid,
+                    b4748383-acc3-468c-8172-90174f345c5d], [X-Kubernetes-Pf-Prioritylevel-Uid,
+                    0c632f7f-10da-49f9-8131-f80ef3043107], [Content-Length, 263]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 263
+```
+</details>
+
+The API creates and endpoint for each pod in the cluster. To access the pod, you need to know its name. You can get the name of the pod by running:
+```bash
+kubectl get pods
+```
+You will get something similar to this:
+```bash
+NAME                                   READY   STATUS    RESTARTS   AGE
+kubernetes-bootcamp-855d5cc575-vjcmk   1/1     Running   0          44m
+```
+In this case, the pod name is `kubernetes-bootcamp-855d5cc575-vjcmk`. You can now access the pod through the API by running:
+```bash
+curl http://localhost:8001/api/v1/namespaces/default/pods/<PODNAME>
+```
+> ⏰**Reminder**: Remember to replace the port number with the one you got from running `kubectl proxy`. Also remember to replace `<PODNAME>` with the pod name you got from running `kubectl get pods`.
+
+So your command will look something like this:
+```
+curl http://localhost:8001/api/v1/namespaces/default/pods/kubernetes-bootcamp-855d5cc575-vjcmk
+```
+
+Note that this URL is the route to the API endpoint for the pod.
+
+<details markdown="block">
+<summary> <b>🔍 Click here to see the output.</b></summary>
+
+```bash
+StatusCode        : 200
+StatusDescription : OK
+Content           : {
+                      "kind": "Pod",
+                      "apiVersion": "v1",
+                      "metadata": {
+                        "name": "kubernetes-bootcamp-855d5cc575-vjcmk",
+                        "generateName": "kubernetes-bootcamp-855d5cc575-",
+                        "namespace": "default",
+                        "uid...
+RawContent        : HTTP/1.1 200 OK
+                    Audit-Id: 092a5724-a854-4fc9-9b6b-b302345c63d9
+                    X-Kubernetes-Pf-Flowschema-Uid: b4748383-acc3-468c-8172-90174f345c5d
+                    X-Kubernetes-Pf-Prioritylevel-Uid: 0c632f7f-10da-49f9-8131-f80ef3...
+Forms             : {}
+Headers           : {[Audit-Id, 092a5724-a854-4fc9-9b6b-b302345c63d9], [X-Kubernetes-Pf-Flowschema-Uid,
+                    b4748383-acc3-468c-8172-90174f345c5d], [X-Kubernetes-Pf-Prioritylevel-Uid,
+                    0c632f7f-10da-49f9-8131-f80ef3043107], [Transfer-Encoding, chunked]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 7041
+```
+
+</details>
+
+Yay! You just accessed the pod through the API. 
+
+### 1.4.1 Explore the Application
+View the containers running inside the pod by running:
+```bash
+kubectl describe pods
+```
+<details markdown="block">
+<summary> <b>🔍 Click here to see the output.</b></summary>
+
+```bash
+Name:             kubernetes-bootcamp-855d5cc575-vjcmk
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.67.2
+Start Time:       Fri, 11 Aug 2023 11:26:39 +0800
+Labels:           app=kubernetes-bootcamp
+                  pod-template-hash=855d5cc575
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.3
+IPs:
+  IP:           10.244.0.3
+Controlled By:  ReplicaSet/kubernetes-bootcamp-855d5cc575
+Containers:
+  kubernetes-bootcamp:
+    Container ID:   docker://3a955af528474f008155f8ec5c038a181988c0a4e7028c78d9a089b9f53023ca
+    Image:          gcr.io/google-samples/kubernetes-bootcamp:v1
+    Image ID:       docker-pullable://gcr.io/google-samples/kubernetes-bootcamp@sha256:0d6b8ee63bb57c5f5b6156f446b3bc3b3c143d233037f3a2f00e279c8fcc64af
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Fri, 11 Aug 2023 11:26:54 +0800
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-gbn5k (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  kube-api-access-gbn5k:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  52m   default-scheduler  Successfully assigned default/kubernetes-bootcamp-855d5cc575-vjcmk to minikube
+  Normal  Pulling    52m   kubelet            Pulling image "gcr.io/google-samples/kubernetes-bootcamp:v1"
+  Normal  Pulled     52m   kubelet            Successfully pulled image "gcr.io/google-samples/kubernetes-bootcamp:v1" in 13.579247s (13.5792534s including waiting)
+  Normal  Created    52m   kubelet            Created container kubernetes-bootcamp
+  Normal  Started    52m   kubelet            Started container kubernetes-bootcamp
+```
+</details>
+
+Here we can see te details about the pods including the containers running inside the pod. Like IP address, image, container ID, etc.
+
+### 1.4.2 View the Container Logs
+You can view the logs for the pod by running:
+```bash
+kubectl logs <PODNAME>
+```
