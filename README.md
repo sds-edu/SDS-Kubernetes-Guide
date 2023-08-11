@@ -281,7 +281,164 @@ Events:
 Here we can see te details about the pods including the containers running inside the pod. Like IP address, image, container ID, etc.
 
 ### 1.4.2 View the Container Logs
-You can view the logs for the pod by running:
+Logs for the container within the Pod are formed from anything that the application typically sends to STDOUT. These logs can be obtained using this command:
 ```bash
 kubectl logs <PODNAME>
 ```
+This returns the logs from the single container running in the pod. You can also use the `-c` flag with the `kubectl logs` command to specify which container to retrieve logs for, in case there are multiple containers running inside the pod.
+
+The output of the command should look like this:
+```bash
+Kubernetes Bootcamp App Started At: 2023-08-11T03:26:54.065Z | Running On:  kubernetes-bootcamp-855d5cc575-vjcmk
+```
+
+### 1.4.3 Execute Commands on the Container
+Once the Pod is operational, we have the capability to run commands directly on the container. To achieve this, the `exec` command is used, taking the Pod's name as a parameter. For example, to list the environment variables:
+```bash
+kubectl exec <PODNAME> -- env
+```
+
+<details markdown="block">
+<summary>❓<b> Do you remember how to find the pod name?</b></summary>
+
+```bash
+kubectl get pods
+```
+</details>
+<br> 
+
+The -- flag is used to pass the command to the container. The output of the command should look like this:
+```bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=kubernetes-bootcamp-855d5cc575-vjcmk
+KUBERNETES_PORT_443_TCP_PROTO=tcp
+KUBERNETES_PORT_443_TCP_PORT=443
+KUBERNETES_PORT_443_TCP_ADDR=10.96.0.1
+KUBERNETES_SERVICE_HOST=10.96.0.1
+KUBERNETES_SERVICE_PORT=443
+KUBERNETES_SERVICE_PORT_HTTPS=443
+KUBERNETES_PORT=tcp://10.96.0.1:443
+KUBERNETES_PORT_443_TCP=tcp://10.96.0.1:443
+NPM_CONFIG_LOGLEVEL=info
+NODE_VERSION=6.3.1
+HOME=/root
+```
+The `env` command lists all environment variables that are configured for the container. 
+Since there is only one container within the Pod, we do not need to specify which container to run the command against. 
+
+To start a bash session in the Pod's container, run this command:
+```bash
+kubectl exec -ti <PODNAME> -- bash
+```
+You are now in the container (most likely in the root). It will look something like this:
+```bash
+root@kubernetes-bootcamp-855d5cc575-vjcmk:/#_
+```
+You can run any command that is installed in the container (like ls, cd etc). For example, check out the source code of the sample application:
+```bash
+cat server.js
+```
+<details markdown="block">
+<summary> <b>🔍 Click here to see the output.</b></summary>
+
+```bash
+var http = require('http');
+var requests=0;
+var podname= process.env.HOSTNAME;
+var startTime;
+var host;
+var handleRequest = function(request, response) {
+  response.setHeader('Content-Type', 'text/plain');
+  response.writeHead(200);
+  response.write("Hello Kubernetes bootcamp! | Running on: ");
+  response.write(host);
+  response.end(" | v=1\n");
+  console.log("Running On:" ,host, "| Total Requests:", ++requests,"| App Uptime:", (new Date() - startTime)/1000 , "seconds", "| Log Time:",new Date());
+}
+var www = http.createServer(handleRequest);
+www.listen(8080,function () {
+    startTime = new Date();;
+    host = process.env.HOSTNAME;
+    console.log ("Kubernetes Bootcamp App Started At:",startTime, "| Running On: " ,host, "\n" );
+});
+```
+</details>
+
+According to the source code, the application is listening on port 8080. Use the curl command to see if the application is running:
+```bash
+curl localhost:8080
+```
+Your output should look like this:
+```bash
+Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-855d5cc575-vjcmk | v=1
+```
+> ⏰**Reminder**: You should still be in the container in order run these commands. If you are getting errors, make sure you have run the `kubectl exec -ti <PODNAME> -- bash` command.
+
+ To exit the container, type `exit`.
+
+ ## 1.5. Expose the App Publicly
+The application is currently running on the cluster, but is not yet accessible from the outside. To make the application accessible from outside the Kubernetes virtual network, you have to expose the application as a Kubernetes Service.
+
+> ⏰**Reminder**: At this point the proxy is still running in the other terminal window. You may close it by pressing `CTRL+C`.
+
+To verify the application is running, check if the pod is still up and running.
+<details markdown>
+<summary>❓<b>How to find existing pods?</b></summary>
+
+```bash
+kubectl get pods
+```
+</details>
+
+List the current services:
+```bash
+kubectl get services
+```
+Output:
+```bash
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   3h27m
+```
+The output shows that the cluster has a single service called `kubernetes`, which serves the Kubernetes API. This service starts by default when minikube starts the cluster. The `EXTERNAL-IP` column is empty, which means that the service is only accessible from within the cluster.
+
+So we have to create a new service to expose the application to external traffic. To do this, we use the `kubectl expose` command:
+```bash 
+kubectl expose deployment/kubernetes-bootcamp --type="NodePort" --port 8080
+```
+> 📝**Note**: `--type="NodePort"` flag specifies the type of exposure, which is a "NodePort." It means that Kubernetes will assign a port on each node to forward traffic to the exposed application. The `--port 8080` flag  sets the port number (8080) on which the application inside the deployment is running. It tells Kubernetes to direct external requests to this port on the exposed service.
+
+If successful, the command returns:
+```bash
+service/kubernetes-bootcamp exposed
+```
+Run the `kubectl get services` command again:
+```bash
+NAME                  TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+kubernetes            ClusterIP   10.96.0.1       <none>        443/TCP          3h37m
+kubernetes-bootcamp   NodePort    10.108.222.39   <none>        8080:30663/TCP   60s
+```
+Take note of the `<NODEPORT>`, in this case it is 30663. Then, obtain the minikube IP address:
+```bash
+minikube ip
+```
+We will refer to it as `<MINIKUBE_IP>`. Now you can try to access the service:
+```bash
+curl <MINIKUBE_IP>:<NODEPORT>
+```
+
+If you are using Docker Desktop (which you most likely are). You **might** see this error:
+```bash
+curl : Unable to connect to the remote server
+At line:1 char:1
++ curl 192.168.67.2:30663
++ ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], Web
+   Exception
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+```
+
+This is because of networking restrictions in Docker Desktop. You can't directly reach pods from your host by default. To overcome this, execute `minikube service kubernetes-bootcamp`. This creates an SSH tunnel from the pod to your host and opens a browser window connected to the service.
+
+![SSH From Pod to Host](images/SSHFromPodToHost.png)
+
+ You can close the tunnel by pressing CTRL+C before moving on.
