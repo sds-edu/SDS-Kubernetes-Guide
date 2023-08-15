@@ -742,4 +742,63 @@ Before we begin, ensure that you have the following installed:
 
 > ⏰**Reminder**: Start the Docker daemon (by opening Docker Desktop) and enable the Kubernetes service in Docker Desktop before proceeding. ![Enable Kubs](images/enablekubs.png)
 
-If you haven't already, please complete the section on Dockerizing a React + Express JS application before proceeding. This can be found in the Docker guide for CS3219.
+If you haven't already, complete the segment on Dockerizing a React + Express JS application before proceeding. This can be found in the Docker guide for CS3219.
+
+ Remember to build the image for the application before proceeding. If you followed the instructions from the aforementioned guide, you will have an image called `<your username>/test-web-app` in your local registry. You can check this by running `docker images`.
+
+ ```bash
+ REPOSITORY                                                TAG                                                                          IMAGE ID       CREATED         SIZE
+<your username>/test-web-app                               latest                                                                       77e73e5030f7   3 minutes ago   1.39GB
+ ```
+
+ > ⏰**Reminder**: `<your username>` refers to your Docker Hub username. Ensure you have a Docker Hub account and are logged in to Docker Hub before proceeding.
+
+ ## 2.1. Upload the Image to Docker Hub
+  Before we can deploy the application using Kubernetes, we need to upload the image to Docker Hub. This is because Kubernetes will pull the image from Docker Hub when we deploy the application.
+
+  Open Docker Hub in your browser. Create a repository in Docker Hub called `test-web-app`. You can do so by clicking on the `Create Repository` button in the `Repositories` tab.
+
+  ![Docker Hub](images/DockerHubRepo.png)
+
+  <sup> Once you click on the `Create Repository` button, you will be brought to this page. </sup>
+
+  Upon creating your new repository, go back to the command line and run the following command to tag your image:
+  ```bash
+  docker tag <your username>/test-web-app <your username>/test-web-app:latest
+  ```
+
+This command takes the existing Docker image with the name `<your username>/test-web-app` and gives it a new tag called `<your username>/test-web-app:latest`, essentially marking it as the latest version of that image.
+
+Now, push your image to Docker Hub:
+```bash
+docker push <your username>/test-web-app
+```
+You should get an output similar to this:
+```bash
+The push refers to repository [docker.io/<your username>/test-web-app]
+c071d95a818d: Pushed
+20a054563a40: Pushed
+acf8f30125e1: Pushed
+ef1a8b6ab139: Pushed
+987c2592e96f: Mounted from library/node
+8f17f1725cc5: Mounted from library/node
+f5f2f113b6de: Mounted from library/node
+d66e0858bdee: Mounted from library/node
+6a25221bdf24: Mounted from library/node
+b578f477cd5d: Mounted from library/node
+b298f9991a11: Mounted from library/node
+c94dc8fa3d89: Mounted from library/node
+latest: digest: sha256:dc076e6f3450ff9f59576d19ba67c6e8a3243cfbf59f752cdc2891882cdd91a6 size: 2842
+```
+Check your Docker Hub repository and you should see your image there.
+
+![Docker Hub Images](images/DockerHubImage.png)
+
+<sup> You will see your image on the Docker Hub repository page. </sup>
+
+## 2.2. Start Minikube
+Start Minikube by running `minikube start`. This will start a local Kubernetes cluster. 
+
+## 2.3. Create a Deployment
+We will define a YAML file to create a deployment for our application. Create a file called `deployment.yaml` and add the following code to it:
+```yaml
