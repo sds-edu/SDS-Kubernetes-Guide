@@ -797,8 +797,101 @@ Check your Docker Hub repository and you should see your image there.
 <sup> You will see your image on the Docker Hub repository page. </sup>
 
 ## 2.2. Start Minikube
-Start Minikube by running `minikube start`. This will start a local Kubernetes cluster. 
+Start Minikube by running `minikube start --driver=docker`. This will start a local Kubernetes cluster. 
 
 ## 2.3. Create a Deployment
 We will define a YAML file to create a deployment for our application. Create a file called `deployment.yaml` and add the following code to it:
+
 ```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-web-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: test-web-app
+  template:
+    metadata:
+      labels:
+        app: test-web-app
+    spec:
+      containers:
+      - name: test-web-app
+        image: <your username>/test-web-app:latest
+        ports:
+        - containerPort: 12345
+```
+
+> 📝**Note**: The layers in the above `yaml` file must be written as shown. The indentation is important. Else `kubectl` will have issues executing it. 
+
+<details markdown="block">
+<summary>🔍<b>Click here to read more about the contents of the YAML file.</b></summary> 
+
+- `apiVersion`: apps/v1: Specifies the API version being used for this resource.
+- `kind`: Declares that this is a Deployment resource.
+- `metadata`: Contains metadata about the Deployment, including its name.
+- `name`: test-web-app: Assigns the name "test-web-app" to the Deployment.
+- `spec`: Defines the desired state of the Deployment.
+- `replicas`: Specifies that there should be 2 replicas (instances) of the application.
+- `selector`: Specifies a label selector for identifying the pods managed by this Deployment.
+- `matchLabels`: Defines the label(s) that the Deployment should match.
+- `template`: Describes the pod template used for creating replicas.
+- `metadata`: Provides labels for the template.
+- `labels`: Assigns labels to the pod template.
+- `spec`: Defines the specifications for the pod.
+- `containers`: Specifies the container(s) to run in the pod.
+- `name`: Names the container "test-web-app".
+- `image`: <your username>/test-web-app:latest: Specifies the Docker image for the container.
+- `ports`: Configures the ports for the container.
+- `containerPort`: Specifies that the container is listening on port 12345.
+</details>
+
+Now, run the following command to create the deployment:
+```bash
+kubectl create -f deployment.yaml
+```
+
+After sometime when you run `kubectl get deploy, po` (a command to get the deployments and pods), you should see something like this:
+```bash
+NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/test-web-app   2/2     2            2           3m17s
+
+NAME                                READY   STATUS    RESTARTS   AGE
+pod/test-web-app-74f659ddbf-nthtc   1/1     Running   0          3m17s
+pod/test-web-app-74f659ddbf-tj5dv   1/1     Running   0          3m17s
+```
+
+## 2.4. Expose the Deployment
+Expose the deployment by running the following command:
+```bash
+kubectl expose deployment/test-web-app --type="NodePort" --port 8080
+```
+
+This will expose the deployment to the outside world. You can check the service by running `kubectl get svc`. You should see something like this:
+```bash
+NAME           TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+kubernetes     ClusterIP   10.96.0.1       <none>        443/TCP          4d4h
+test-web-app   NodePort    10.111.186.94   <none>        8080:31141/TCP   33s
+```
+
+To view the deployment in the browser, run:
+```bash
+minikube service test-web-app
+```
+
+You should see the following page:
+
+![Alt text](images\KubsDeployment.png)
+
+<sup> The sample react website as deployed by Kubernetes. </sup>
+
+Yay! You have successfully deployed your application using Kubernetes!
+
+# 3. References
+This guide was made with the help of the following resources:
+- [GeeksforGeeks Intro to K8s](https://www.geeksforgeeks.org/introduction-to-kubernetes-k8s/)
+- [Getting started with Dockr and Kubernetes by Educative](https://www.educative.io/blog/docker-kubernetes-beginners-guide#kubernetes-practice)
+- [Tutorials on how to use minikube - Kubernetes 101](https://minikube.sigs.k8s.io/docs/tutorials/)
+- [This medium article on Developing and Deploying a NodeJS app from Docker to Kubernetes](https://medium.com/paul-zhao-projects/developing-and-deploying-a-node-js-app-from-docker-to-kubernetes-3aab28356719)
