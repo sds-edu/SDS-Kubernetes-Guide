@@ -5,6 +5,29 @@
 </p>
 
 _**Table of Contents**_
+- [1. A Guide to Getting Started with Kubernetes](#1-a-guide-to-getting-started-with-kubernetes)
+  - [1.1. Introduction](#11-introduction)
+  - [1.2. Installation and Setup](#12-installation-and-setup)
+  - [1.3. Create a Kubernetes Cluster](#13-create-a-kubernetes-cluster)
+  - [1.4. Deploy an Application](#14-deploy-an-application)
+    - [1.4.1 Explore the Application](#141-explore-the-application)
+    - [1.4.2 View the Container Logs](#142-view-the-container-logs)
+    - [1.4.3 Execute Commands on the Container](#143-execute-commands-on-the-container)
+  - [1.5. Expose the App Publicly](#15-expose-the-app-publicly)
+  - [1.6. Scale and Update the App](#16-scale-and-update-the-app)
+    - [1.6.1. Scale Up](#161-scale-up)
+    - [1.6.2. Load Balancing](#162-load-balancing)
+    - [1.6.3. Scale Down](#163-scale-down)
+    - [1.6.4. Update the Application](#164-update-the-application)
+- [2. Deploying a React + Express JS Application using Kubernetes + Docker](#2-deploying-a-react--express-js-application-using-kubernetes--docker)
+  - [2.1. Upload the Image to Docker Hub](#21-upload-the-image-to-docker-hub)
+  - [2.2. Start Minikube](#22-start-minikube)
+  - [2.3. Create a Deployment](#23-create-a-deployment)
+  - [2.4. Expose the Deployment](#24-expose-the-deployment)
+- [3. References](#3-references)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
 
 ## 1.1. Introduction
 To a certain extent, Docker is widely used as a tool that makes it easy to package and deploy applications in containers. This ensures that applications behave consistently whether you are using them on your laptop or in the cloud.
