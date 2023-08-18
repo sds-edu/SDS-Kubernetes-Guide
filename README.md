@@ -906,7 +906,7 @@ minikube service test-web-app
 
 You should see the following page:
 
-![Alt text](images\KubsDeployment.png)
+![Alt text](images/KubsDeployment.png)
 
 <sup> The sample react website as deployed by Kubernetes. </sup>
 
