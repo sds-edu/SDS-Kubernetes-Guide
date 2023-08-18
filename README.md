@@ -401,7 +401,8 @@ Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-855d5cc575-vjcmk | 
 
  To exit the container, type `exit`.
 
- ## 1.5. Expose the App Publicly
+
+## 1.5. Expose the App Publicly
 The application is currently running on the cluster, but is not yet accessible from the outside. To make the application accessible from outside the Kubernetes virtual network, you have to expose the application as a Kubernetes Service.
 
 > ⏰**Reminder**: At this point the proxy is still running in the other terminal window. You may close it by pressing `CTRL+C`.
