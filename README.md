@@ -86,7 +86,7 @@ This section will guide you through the process of deploying a local Kubernetes 
 
 For this guide, we recommend the Docker driver for Minikube. If you would like to use a different driver (at your own risk), you can find the instructions [here](https://minikube.sigs.k8s.io/docs/drivers/).
 
-> ⏰**Reminder**: Start the Docker daemon (by opening Docker Desktop) and enable the Kubernetes service in Docker Desktop before proceeding. ![Enable Kubs](images/enablekubs.png)
+> ⏰**Reminder**: Start the Docker daemon (by opening Docker Desktop) and enable the Kubernetes service in Docker Desktop before proceeding. ![Enable Kubs](images/enablekubs.png) <sup> Figure 1.3.1: Enabling Kubernetes in Docker Desktop </sup>
 
 
 Start the cluster by running:
@@ -121,6 +121,8 @@ This command will create a deployment called `kubernetes-bootcamp` and use the `
 
 This is what happens when create a deployment:
 ![deploykubs](images/deploykubs.png)
+
+<sup> Figure 1.4.1: Deploying an application </sup>
 
 Run `kubectl get deployments` to see the deployment you just created:
 ```bash
@@ -464,6 +466,8 @@ This is because of networking restrictions in Docker Desktop. You can't directly
 
 ![SSH From Pod to Host](images/SSHFromPodToHost.png)
 
+<sup> Figure 1.5.1 SSH From Pod to Host </sup>
+
  You can close the tunnel by pressing CTRL+C before moving on.
 
  To delete a service, use the `kubectl delete service` command:
@@ -685,7 +689,7 @@ Press CTRL+C to close the SSH terminal. Run the command multiple times to see ho
 
 ![RandomServicePods](images/RandomServicePods.png)
 
-<sup>The image above shows the service randomly distributing requests to each pod when you run the command multiple times.</sup>
+<sup>Figure 1.6.2.1 The image above shows the service randomly distributing requests to each pod when you run the command multiple times.</sup>
 
 ### 1.6.3. Scale Down
 Scaling down in Kubernetes means reducing the number of pod replicas for a deployment or application. This is done to conserve resources when demand decreases. Kubernetes allows you to automatically adjust the number of instances, helping to optimize resource usage and improve efficiency while maintaining the desired level of performance.
@@ -763,7 +767,7 @@ Before we begin, ensure that you have the following installed:
 - [Minikube](https://minikube.sigs.k8s.io/docs/start/)
 - [Node.js LTS](https://nodejs.org/en/download/)
 
-> ⏰**Reminder**: Start the Docker daemon (by opening Docker Desktop) and enable the Kubernetes service in Docker Desktop before proceeding. ![Enable Kubs](images/enablekubs.png)
+> ⏰**Reminder**: Start the Docker daemon (by opening Docker Desktop) and enable the Kubernetes service in Docker Desktop before proceeding. ![Enable Kubs](images/enablekubs.png) <sup> Figure 2.1 The image above shows how to enable the Kubernetes service in Docker Desktop.</sup>
 
 If you haven't already, complete the segment on Dockerizing a React + Express JS application before proceeding. This can be found in the Docker guide for CS3219.
 
@@ -783,7 +787,7 @@ If you haven't already, complete the segment on Dockerizing a React + Express JS
 
   ![Docker Hub](images/DockerHubRepo.png)
 
-  <sup> Once you click on the `Create Repository` button, you will be brought to this page. </sup>
+  <sup> Figure 2.1.1 Once you click on the `Create Repository` button, you will be brought to this page. </sup>
 
   Upon creating your new repository, go back to the command line and run the following command to tag your image:
   ```bash
@@ -817,7 +821,7 @@ Check your Docker Hub repository and you should see your image there.
 
 ![Docker Hub Images](images/DockerHubImage.png)
 
-<sup> You will see your image on the Docker Hub repository page. </sup>
+<sup> Figure 2.1.2 You will see your image on the Docker Hub repository page. </sup>
 
 ## 2.2. Start Minikube
 Start Minikube by running `minikube start --driver=docker`. This will start a local Kubernetes cluster. 
@@ -908,7 +912,7 @@ You should see the following page:
 
 ![Alt text](images/KubsDeployment.png)
 
-<sup> The sample react website as deployed by Kubernetes. </sup>
+<sup> Figure 2.4.1 The sample react website as deployed by Kubernetes. </sup>
 
 Yay! You have successfully deployed your application using Kubernetes!
 
