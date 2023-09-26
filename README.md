@@ -24,7 +24,8 @@ _**Table of Contents**_
   - [2.2. Start Minikube](#22-start-minikube)
   - [2.3. Create a Deployment](#23-create-a-deployment)
   - [2.4. Expose the Deployment](#24-expose-the-deployment)
-- [3. References](#3-references)
+- [3. Amazon Elastic Kubernetes Service (EKS)](#3-amazon-elastic-kubernetes-service-eks)
+- [4. References](#4-references)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
@@ -917,7 +918,10 @@ You should see the following page:
 
 Yay! You have successfully deployed your application using Kubernetes!
 
-# 3. References
+# 3. Amazon Elastic Kubernetes Service (EKS)
+EKS is AWS's managed Kubernetes service. It allows you to easily deploy, manage, and scale containerized applications using Kubernetes on AWS. It is a fully managed service that automates the provisioning, management, and scaling of Kubernetes clusters so that you can run containerized applications on AWS.
+
+# 4. References
 This guide was made with the help of the following resources:
 - [GeeksforGeeks Intro to K8s](https://www.geeksforgeeks.org/introduction-to-kubernetes-k8s/)
 - [Getting started with Dockr and Kubernetes by Educative](https://www.educative.io/blog/docker-kubernetes-beginners-guide#kubernetes-practice)
