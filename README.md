@@ -25,6 +25,7 @@ _**Table of Contents**_
   - [2.3. Create a Deployment](#23-create-a-deployment)
   - [2.4. Expose the Deployment](#24-expose-the-deployment)
 - [3. Amazon Elastic Kubernetes Service (EKS)](#3-amazon-elastic-kubernetes-service-eks)
+  - [3.1. Prerequisites and Installation](#31-prerequisites-and-installation)
 - [4. References](#4-references)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
@@ -920,6 +921,31 @@ Yay! You have successfully deployed your application using Kubernetes!
 
 # 3. Amazon Elastic Kubernetes Service (EKS)
 EKS is AWS's managed Kubernetes service. It allows you to easily deploy, manage, and scale containerized applications using Kubernetes on AWS. It is a fully managed service that automates the provisioning, management, and scaling of Kubernetes clusters so that you can run containerized applications on AWS.
+
+To get started with Amazon EKS, you would need to [create an AWS account](https://aws.amazon.com/resources/create-account/).  
+
+Now in your browser search for the EKS service. 
+
+![Alt text](images/1.png)
+
+<sup>Figure 3.1: Search for EKS service</sup>
+
+Click on the eks service and you will be brought to the EKS dashboard. Click on the gettting started section. You will be redirected to the AWS documentation of EKS. 
+
+![Alt text](images/2.png)
+
+<sup>Figure 3.2: Click on the getting started section</sup>
+
+The documentation provides 2 ways to create a cluster. The first way is to use eksctl, a command line tool for creating clusters on EKS. The second way is to use the AWS Management Console. 
+
+The fastest and easiest way to create a cluster is using `eksctl`. That is the method we will be using in this guide. This is expalined in detail in the next few sections.
+
+## 3.1. Prerequisites and Installation
+1. First [install AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) - a unified tool to manage your AWS services.
+   - Once that is done, you will need to create a user to access the AWS services. To do so, go to the IAM service in your AWS Management Console.
+ - [Install kubectl](https://kubernetes.io/docs/tasks/tools/)
+ - [Install eksctl](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html) - a simple command line utility for creating and managing Kubernetes clusters on Amazon EKS.
+
 
 # 4. References
 This guide was made with the help of the following resources:
