@@ -27,8 +27,8 @@ _**Table of Contents**_
 - [3. Amazon Elastic Kubernetes Service (EKS)](#3-amazon-elastic-kubernetes-service-eks)
   - [3.1. Prerequisites and Installation](#31-prerequisites-and-installation)
   - [3.2. Create a Cluster](#32-create-a-cluster)
-- [3.3. View the Kuberenetes Resources](#33-view-the-kuberenetes-resources)
-- [3.4. Deploy the Application](#34-deploy-the-application)
+  - [3.3. View the Kuberenetes Resources](#33-view-the-kuberenetes-resources)
+  - [3.4. Deploy the Application](#34-deploy-the-application)
 - [4. References](#4-references)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
@@ -972,7 +972,7 @@ If the cluster is created successfully, you should see something like this:
 [✓]  EKS cluster "my-cluster" in "region-code" region is ready
 ```
 
-# 3.3. View the Kuberenetes Resources
+## 3.3. View the Kuberenetes Resources
 View the nodes in your cluster:
 ```bash
 kubectl get nodes
@@ -983,7 +983,7 @@ kubectl get pods -A
 ```
 Ensure you are able to communicate with your cluster through `kubectl`. If you are not able to do so, you may need to [configure kubectl](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html).
 
-# 3.4. Deploy the Application
+## 3.4. Deploy the Application
 Now that you have created a cluster, you can deploy your application.
 1. Create a namespace for your application:
 ```bash
