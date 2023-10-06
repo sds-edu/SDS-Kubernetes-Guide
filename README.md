@@ -26,6 +26,9 @@ _**Table of Contents**_
   - [2.4. Expose the Deployment](#24-expose-the-deployment)
 - [3. Amazon Elastic Kubernetes Service (EKS)](#3-amazon-elastic-kubernetes-service-eks)
   - [3.1. Prerequisites and Installation](#31-prerequisites-and-installation)
+  - [3.2. Create a Cluster](#32-create-a-cluster)
+- [3.3. View the Kuberenetes Resources](#33-view-the-kuberenetes-resources)
+- [3.4. Deploy the Application](#34-deploy-the-application)
 - [4. References](#4-references)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
@@ -942,10 +945,80 @@ The fastest and easiest way to create a cluster is using `eksctl`. That is the m
 
 ## 3.1. Prerequisites and Installation
 1. First [install AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) - a unified tool to manage your AWS services.
-   - Once that is done, you will need to create a user to access the AWS services. To do so, go to the IAM service in your AWS Management Console.
- - [Install kubectl](https://kubernetes.io/docs/tasks/tools/)
- - [Install eksctl](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html) - a simple command line utility for creating and managing Kubernetes clusters on Amazon EKS.
+2. Once that is done, you will need to create a user to access the AWS services. Search for the IAM service in your AWS Management Console. Click on it and you will be redirected to identity and access management.
+    - Under access management, select users and then create user
+    - You will have to set details of the user now
+    - Give your user a descriptive user name, like awscli, click next
+    - In set permissions, select attach existing policies directly and then select AdministratorAccess. Click next
+    - Create User
+    - Now that you have created a user, you will need to configure the access key and secret key. Click on the user you have just created and click on security credentials.
+    - Click on create access key, select the CLI use case option, confirm and click on next
+    - You may set a description tag if you want, click on create access key
+    - Download the csv file and keep it safe. You will need the access key and secret key later on.
+3. Now in your terminal, run `aws configure`. You will be prompted to enter your access key and secret key. You will also be prompted to enter the region and output format. You can leave the output format as default. For the region, you can enter `ap-southeast-1` for Singapore. Check out the other regions [here](https://docs.aws.amazon.com/general/latest/gr/ec2-service.html).
+4. Type `aws ec2 describe-regions` to check if it is working. 
+5. Install `eksctl` using the instructions [here](https://eksctl.io/introduction/#installation). Follow the instructions for your respective operating system.
+   > Note: You can also try running [eksctl on Docker!](https://eksctl.io/introduction/#docker)
+6. Ensure you have `kubectl` installed. If not, follow the instructions [here](https://kubernetes.io/docs/reference/kubectl/).
 
+## 3.2. Create a Cluster
+Now that you have installed `eksctl`, you can create a cluster. Run the following command:
+```bash
+eksctl create cluster --name my-cluster --region region-code
+```
+If the cluster is created successfully, you should see something like this:
+```bash
+...
+[✓]  EKS cluster "my-cluster" in "region-code" region is ready
+```
+
+# 3.3. View the Kuberenetes Resources
+View the nodes in your cluster:
+```bash
+kubectl get nodes
+```
+You can check the workloads in your cluster:
+```bash
+kubectl get pods -A
+```
+Ensure you are able to communicate with your cluster through `kubectl`. If you are not able to do so, you may need to [configure kubectl](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html).
+
+# 3.4. Deploy the Application
+Now that you have created a cluster, you can deploy your application.
+1. Create a namespace for your application:
+```bash
+kubectl create namespace test-web-app
+```
+2. Create a deployment for your application:
+```bash
+kubectl create deployment test-web-app --image=<your username>/test-web-app:latest -n test-web-app
+```
+3. Apply the deployment to the cluster:
+```bash
+kubectl apply -f deployment.yaml -n test-web-app
+```
+4. View resources that exist in the namespace:
+```bash
+kubectl get all -n test-web-app
+```
+5. Take note of an ID of one of the pods. You can get the ID by running `kubectl get pods -n test-web-app`. 
+6. Run a shell on the pod:
+```bash
+kubectl exec -it <pod-id> -n test-web-app -- /bin/bash
+```
+7. Check if the application is running:
+```bash
+curl localhost:12345
+```
+8. Exit the shell:
+```bash
+exit
+```
+9. Once you are done, delete the namespace:
+```bash
+kubectl delete namespace test-web-app
+```
+You have deployed your application to an EKS cluster!
 
 # 4. References
 This guide was made with the help of the following resources:
@@ -953,3 +1026,8 @@ This guide was made with the help of the following resources:
 - [Getting started with Dockr and Kubernetes by Educative](https://www.educative.io/blog/docker-kubernetes-beginners-guide#kubernetes-practice)
 - [Tutorials on how to use minikube - Kubernetes 101](https://minikube.sigs.k8s.io/docs/tutorials/)
 - [This medium article on Developing and Deploying a NodeJS app from Docker to Kubernetes](https://medium.com/paul-zhao-projects/developing-and-deploying-a-node-js-app-from-docker-to-kubernetes-3aab28356719)
+- [AWS docs on how to deploy a sample app to EKS](https://docs.aws.amazon.com/eks/latest/userguide/sample-deployment.html)
+- [AWS docs on how to create a cluster using eksctl](https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html)
+- [AWS docs on creating a kubeconfig file for Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)
+- [eksctl docs](https://eksctl.io/introduction/#basic-cluster-creation)
+- [This video on how to install eksctl](https://www.youtube.com/watch?v=7SwFzYKySu0)
