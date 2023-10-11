@@ -1,4 +1,4 @@
-# CS3219 Toolbox: Kubernetes
+# CS3219 SE Toolbox: Kubernetes
 The CS3219 SE Toolbox is a collection of guides and resources to help you get started with the various tools and technologies used CS3219 - Software Engineering Principles and Patterns.
 
 This guide will help you get started with Kubernetes. It will cover the basics of Kubernetes and how to deploy a sample application using Kubernetes. Finally, it will cover how to use Amazon Elastic Kubernetes Service (EKS).
@@ -10,7 +10,7 @@ This guide will help you get started with Kubernetes. It will cover the basics o
 </p>
 
 _**Table of Contents**_
-- [CS3219 Toolbox: Kubernetes](#cs3219-toolbox-kubernetes)
+- [CS3219 SE Toolbox: Kubernetes](#cs3219-se-toolbox-kubernetes)
 - [1. A Guide to Getting Started with Kubernetes](#1-a-guide-to-getting-started-with-kubernetes)
   - [1.1. Introduction](#11-introduction)
   - [1.2. Installation and Setup](#12-installation-and-setup)
