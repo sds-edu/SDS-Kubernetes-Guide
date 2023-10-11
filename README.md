@@ -1,3 +1,8 @@
+# CS3219 Toolbox: Kubernetes
+The CS3219 SE Toolbox is a collection of guides and resources to help you get started with the various tools and technologies used CS3219 - Software Engineering Principles and Patterns.
+
+This guide will help you get started with Kubernetes. It will cover the basics of Kubernetes and how to deploy a sample application using Kubernetes. Finally, it will cover how to use Amazon Elastic Kubernetes Service (EKS).
+
 # 1. A Guide to Getting Started with Kubernetes
 
 <p align= "center">
@@ -5,6 +10,7 @@
 </p>
 
 _**Table of Contents**_
+- [CS3219 Toolbox: Kubernetes](#cs3219-toolbox-kubernetes)
 - [1. A Guide to Getting Started with Kubernetes](#1-a-guide-to-getting-started-with-kubernetes)
   - [1.1. Introduction](#11-introduction)
   - [1.2. Installation and Setup](#12-installation-and-setup)
@@ -41,7 +47,7 @@ However, as the demands of scalability and intricacy increase, the containerised
 
 <sup> The above text was partially generated with the help of [ChatGPT](https://chat.openai.com/)</sup>
 
-<details markdown="block">
+<details open markdown="block">
 <summary> <b> 🔍 Click here to find out more on why Kubernetes is widely used. </b></summary>
 
 Kubernetes simplifies the deployment process for applications. It also provides tools that help make the application robust. The following table describes the key features and benefits of Kubernetes.
@@ -158,7 +164,7 @@ curl http://localhost:8001/version
 
 > ⏰**Reminder**:Remember to replace the port number with the one you got from running `kubectl proxy`. Also note that the proxy must be running for this to work.
 
-<details markdown="block">
+<details open markdown="block">
 <summary> <b>🔍 Click here to see the output.</b></summary>
 
 ```bash
@@ -210,7 +216,7 @@ curl http://localhost:8001/api/v1/namespaces/default/pods/kubernetes-bootcamp-85
 
 Note that this URL is the route to the API endpoint for the pod.
 
-<details markdown="block">
+<details open markdown="block">
 <summary> <b>🔍 Click here to see the output.</b></summary>
 
 ```bash
@@ -248,7 +254,7 @@ View the containers running inside the pod by running:
 ```bash
 kubectl describe pods
 ```
-<details markdown="block">
+<details open markdown="block">
 <summary> <b>🔍 Click here to see the output.</b></summary>
 
 ```bash
@@ -328,7 +334,7 @@ Once the Pod is operational, we have the capability to run commands directly on 
 kubectl exec <PODNAME> -- env
 ```
 
-<details markdown="block">
+<details open markdown="block">
 <summary>❓<b> Do you remember how to find the pod name?</b></summary>
 
 ```bash
@@ -368,7 +374,7 @@ You can run any command that is installed in the container (like ls, cd etc). Fo
 ```bash
 cat server.js
 ```
-<details markdown="block">
+<details open markdown="block">
 <summary> <b>🔍 Click here to see the output.</b></summary>
 
 ```bash
@@ -413,7 +419,7 @@ The application is currently running on the cluster, but is not yet accessible f
 > ⏰**Reminder**: At this point the proxy is still running in the other terminal window. You may close it by pressing `CTRL+C`.
 
 To verify the application is running, check if the pod is still up and running.
-<details markdown>
+<details open markdown>
 <summary>❓<b>How to find existing pods?</b></summary>
 
 ```bash
@@ -487,7 +493,7 @@ kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   4h13m
 ```
 The service is no longer listed. It is no longer accessible from outside the cluster. However, the application is still running inside the pod. 
 
-<details markdown="block">
+<details open markdown="block">
 <summary>❓<b>How do you check if the application is still running in the pod?</b></summary>
 
 ```bash
@@ -506,6 +512,7 @@ In this section, you will learn how to scale up the application and update it to
 
 ### 1.6.1. Scale Up
 Scaling up in Kubernetes involves increasing the number of pod replicas for a deployment or application to handle higher demand or workload. Kubernetes allows you to dynamically adjust the number of instances to distribute traffic and workload more effectively, ensuring optimal performance and responsiveness. This helps accommodate increased user activity or resource requirements without manual intervention.
+
 <sup> This text was generated with the help of [ChatGPT](https://chat.openai.com/)</sup> 
 
 Since we deleted the deployment, we need to create a new one before we can scale it up. To create a new deployment:
@@ -516,7 +523,7 @@ Then expose it:
 ```bash
 kubectl expose deployment/kubernetes-bootcamp --type="NodePort" --port 8080
 ```
-<details markdown="block">
+<details open markdown="block">
 <summary>❓<b>How do you list your deployments?</b></summary>
 
 ```bash
@@ -561,10 +568,10 @@ Yay! You now have 4 replicas of the application up and running. Do you think the
 ```bash
 kubectl get pods -o wide
 ```
-<details markdown="block">
+<details open markdown="block">
 <summary>🔍<b>Click here to find out what the -o wide flag does.</b></summary>
 
-The command kubectl `get pods -o wide`, the `-o wide` specifies that you want to display the output in a wider format that includes additional information about the pods, such as the node they're running on and their IP addresses. If you don't specify `-o`, the default output format will be used.
+In the command kubectl `get pods -o wide`, the `-o wide` specifies that you want to display the output in a wider format that includes additional information about the pods, such as the node they're running on and their IP addresses. If you don't specify `-o`, the default output format will be used.
 </details>
 <br>
 
@@ -580,7 +587,7 @@ The number of pods has changed. There are now 4 pods running. They have differen
 ```bash
 kubectl describe deployments/kubernetes-bootcamp
 ```
-<details markdown="block">
+<details open markdown="block">
 <summary>🔍<b>Click here to see the output.</b></summary>
 
 ```bash
@@ -623,6 +630,7 @@ The events log shows that the deployment controller scaled up the deployment to 
 
 ### 1.6.2. Load Balancing
 Load balancing in Kubernetes involves distributing incoming network traffic across multiple instances of an application to ensure efficient resource utilization, prevent overloading, and maintain high availability. Kubernetes automates load balancing for services by intelligently routing traffic to healthy pods and providing dynamic scaling to handle varying workloads. This helps optimize application performance, enhance fault tolerance, and adapt to changing demands.
+
 <sup> This text was generated with the help of [ChatGPT](https://chat.openai.com/)</sup> 
 
 Find the exposed IP and Port:
@@ -630,7 +638,7 @@ Find the exposed IP and Port:
 kubectl describe services/kubernetes-bootcamp
 ```
 
-<details markdown="block">
+<details open markdown="block">
 <summary>🔍<b>Click here to see the output.</b></summary>
 
 ```bash
@@ -658,7 +666,7 @@ As seen from the output above, the <NODEPORT> is `31264`. Then using the minikub
 ```bash
 curl <MINIKUBE_IP>:<NODEPORT>
 ```
-<details markdown="block">
+<details open markdown="block">
 <summary>❓<b>Do you remember how to find the minikube ip?</b></summary>
 
 Run:
@@ -669,29 +677,9 @@ minikube ip
 
 If this works for you, try executing the command multiple times, you should hit a different pod with every request. This is because the service randomly distributes requests to each pod.
 
-If you are using Docker Desktop (which you most likely are). You **might** see this error:
-```bash
-curl : Unable to connect to the remote server
-At line:1 char:1
-+ curl 192.168.67.2:31264
-+ ~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], Web
-   Exception
-    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
-```
-This is because of networking restrictions in Docker Desktop. You can't directly reach pods from your host by default.
-<details markdown="block">
-<summary>❓<b>How do you overcome this error?</b></summary>
+If you are using Docker Desktop (which you most likely are). You **might** encounter an error "Unable to connect to the remote server". This is because of networking restrictions in Docker Desktop. You can't directly reach pods from your host by default. See [section 1.5](#15-expose-the-app-publicly) on how to overcome this error.
 
-```bash
-minikube service kubernetes-bootcamp
-```
-</details>
-<br>
-
-This creates an SSH tunnel from the pod to your host and opens a browser window connected to the service.
-
-Press CTRL+C to close the SSH terminal. Run the command multiple times to see how the service randomly distributes requests to each pod.
+Run the command multiple times to see how the service randomly distributes requests to each pod.
 
 ![RandomServicePods](images/RandomServicePods.png)
 
@@ -749,7 +737,7 @@ kubernetes-bootcamp-69b6f9fbb9-kxw9l   1/1     Running   0          56s
 
 If you check quick enough, you will be able to see the old pods terminating and the new pods starting.
 
-Verify the update by checking if the app is running. Use the commands from (this section)[#162-load-balancing] to do so.
+Verify the update by checking if the app is running. Use the commands from [this section](#162-load-balancing) to do so.
 
 You may also confirm this update by:
 ```bash
@@ -773,7 +761,7 @@ Before we begin, ensure that you have the following installed:
 - [Minikube](https://minikube.sigs.k8s.io/docs/start/)
 - [Node.js LTS](https://nodejs.org/en/download/)
 
-> ⏰**Reminder**: Start the Docker daemon (by opening Docker Desktop) and enable the Kubernetes service in Docker Desktop before proceeding. ![Enable Kubs](images/enablekubs.png) <sup> Figure 2.1 The image above shows how to enable the Kubernetes service in Docker Desktop.</sup>
+> ⏰**Reminder**: Start the Docker daemon (by opening Docker Desktop) and enable the Kubernetes service in Docker Desktop before proceeding.
 
 If you haven't already, complete the segment on Dockerizing a React + Express JS application before proceeding. This can be found in the Docker guide for CS3219.
 
@@ -859,7 +847,7 @@ spec:
 
 > 📝**Note**: The layers in the above `yaml` file must be written as shown. The indentation is important. Else `kubectl` will have issues executing it. 
 
-<details markdown="block">
+<details open markdown="block">
 <summary>🔍<b>Click here to read more about the contents of the YAML file.</b></summary> 
 
 - `apiVersion`: apps/v1: Specifies the API version being used for this resource.
@@ -955,11 +943,12 @@ The fastest and easiest way to create a cluster is using `eksctl`. That is the m
     - Click on create access key, select the CLI use case option, confirm and click on next
     - You may set a description tag if you want, click on create access key
     - Download the csv file and keep it safe. You will need the access key and secret key later on.
-3. Now in your terminal, run `aws configure`. You will be prompted to enter your access key and secret key. You will also be prompted to enter the region and output format. You can leave the output format as default. For the region, you can enter `ap-southeast-1` for Singapore. Check out the other regions [here](https://docs.aws.amazon.com/general/latest/gr/ec2-service.html).
+3. Now in your computer's terminal, run `aws configure`. You will be prompted to enter your access key and secret key. You will also be prompted to enter the region and output format. You can leave the output format as default. For the region, you can enter `ap-southeast-1` for Singapore. Check out the other regions [here](https://docs.aws.amazon.com/general/latest/gr/ec2-service.html). If you have concerns about what regions can be used in the amazon free-tier, check out the [FAQ](https://aws.amazon.com/free/free-tier-faqs/?audit=2019q1).
 4. Type `aws ec2 describe-regions` to check if it is working. 
 5. Install `eksctl` using the instructions [here](https://eksctl.io/introduction/#installation). Follow the instructions for your respective operating system.
    > Note: You can also try running [eksctl on Docker!](https://eksctl.io/introduction/#docker)
-6. Ensure you have `kubectl` installed. If not, follow the instructions [here](https://kubernetes.io/docs/reference/kubectl/).
+6. Ensure you have `kubectl` installed. If not, follow the instructions [here](https://kubernetes.io/docs/reference/kubectl/). 
+7. Then [configure kubectl](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html) to make sure you are able to communicate with your cluster through `kubectl`.
 
 ## 3.2. Create a Cluster
 Now that you have installed `eksctl`, you can create a cluster. Run the following command:
@@ -981,8 +970,6 @@ You can check the workloads in your cluster:
 ```bash
 kubectl get pods -A
 ```
-Ensure you are able to communicate with your cluster through `kubectl`. If you are not able to do so, you may need to [configure kubectl](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html).
-
 ## 3.4. Deploy the Application
 Now that you have created a cluster, you can deploy your application.
 1. Create a namespace for your application:
