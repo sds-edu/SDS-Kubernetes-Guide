@@ -12,6 +12,7 @@ This guide will help you get started with Kubernetes. It will cover the basics o
 _**Table of Contents**_
 - [CS3219 SE Toolbox: Kubernetes](#cs3219-se-toolbox-kubernetes)
 - [1. A Guide to Getting Started with Kubernetes](#1-a-guide-to-getting-started-with-kubernetes)
+  - [1.0. Kubernetes Architecture — Cluster → Nodes → Pods → Containers → Services (Visual)](#10-kubernetes-architecture--cluster--nodes--pods--containers--services-visual)
   - [1.1. Introduction](#11-introduction)
   - [1.2. Installation and Setup](#12-installation-and-setup)
   - [1.3. Create a Kubernetes Cluster](#13-create-a-kubernetes-cluster)
@@ -30,6 +31,7 @@ _**Table of Contents**_
   - [2.2. Start Minikube](#22-start-minikube)
   - [2.3. Create a Deployment](#23-create-a-deployment)
   - [2.4. Expose the Deployment](#24-expose-the-deployment)
+  - [2.5. CI/CD — Deploy to Kubernetes with GitHub Actions](#25-cicd--deploy-to-kubernetes-with-github-actions)
 - [3. Amazon Elastic Kubernetes Service (EKS)](#3-amazon-elastic-kubernetes-service-eks)
   - [3.1. Prerequisites and Installation](#31-prerequisites-and-installation)
   - [3.2. Create a Cluster](#32-create-a-cluster)
@@ -37,7 +39,25 @@ _**Table of Contents**_
   - [3.4. Deploy the Application](#34-deploy-the-application)
 - [4. References](#4-references)
 
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
+### 1.0. Kubernetes Architecture -
+
+**Cluster → Nodes → Pods → Containers → Services**
+
+<p align="center">
+  <img src="images/img1.webp" alt="Kubernetes architecture overview" width="800">
+</p>
+
+**Read the diagram left-to-right:** A *Kubernetes cluster* contains a **control plane** and one or more **worker nodes**.  
+Each **node** runs one or more **pods**, and each pod wraps one or more **containers** (the things that actually run your app).  
+A **Service** gives a stable network identity to a set of pods and can expose them *within* the cluster or *outside* via NodePort/LoadBalancer/Ingress.
+
+- **Cluster** → the whole system; API server is the front door.
+- **Node** → a VM/host that runs your workloads (via `kubelet`, container runtime).
+- **Pod** → the deployable unit (1+ tightly coupled containers sharing IP/volumes).
+- **Container** → your image + runtime.
+- **Service** → stable virtual IP + load balancing across matching pods (label selectors).
+
 
 
 ## 1.1. Introduction
@@ -910,6 +930,79 @@ You should see the following page:
 
 Yay! You have successfully deployed your application using Kubernetes!
 
+
+## 2.5. CI/CD — Deploy to Kubernetes with GitHub Actions
+
+<p align="center">
+  <img src="images/img2.png" alt="GitHub Actions workflow to build, scan, push image and apply manifests to Kubernetes" width="900">
+</p>
+
+Below is a minimal example that **builds** a Docker image, **pushes** it to Docker Hub (or GHCR), and then **applies** your Kubernetes manifests to a cluster that your runner can reach (e.g., via `kubectl` using a kubeconfig secret).
+
+> Prereqs
+> - Kubernetes manifests committed (e.g., `k8s/deployment.yaml`, `k8s/service.yaml`).
+> - Secrets configured in your repo settings:
+>   - `DOCKER_USERNAME`, `DOCKER_PASSWORD` (or a PAT for GHCR).
+>   - `KUBE_CONFIG` (base64-encoded kubeconfig) **or** cloud OIDC-based auth.
+> - The image name below uses Docker Hub; adapt as needed.
+
+```yaml
+name: ci-cd-kubernetes
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/test-web-app:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write kubeconfig from secret
+        run: |
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'latest'
+
+      - name: Set image in manifests (optional)
+        run: |
+          sed -i 's|image: .*$|image: '"${{ secrets.DOCKER_USERNAME }}/test-web-app:latest"'|g' k8s/deployment.yaml
+
+      - name: Apply manifests
+        run: |
+          kubectl apply -f k8s/
+          kubectl rollout status deploy/test-web-app -n default
+
+```
+
+How this maps to the architecture: the workflow pushes a new container image; your Deployment updates pods to use that image; the Service continues to route traffic across healthy pods, enabling zero(ish)-downtime rollouts.
+
 # 3. Amazon Elastic Kubernetes Service (EKS)
 EKS is AWS's managed Kubernetes service. It allows you to easily deploy, manage, and scale containerized applications using Kubernetes on AWS. It is a fully managed service that automates the provisioning, management, and scaling of Kubernetes clusters so that you can run containerized applications on AWS.
 
@@ -1009,12 +1102,31 @@ You have deployed your application to an EKS cluster!
 
 # 4. References
 This guide was made with the help of the following resources:
+## Core Kubernetes Documentation
+This guide was made with the help of the following resources:
 - [GeeksforGeeks Intro to K8s](https://www.geeksforgeeks.org/introduction-to-kubernetes-k8s/)
-- [Getting started with Dockr and Kubernetes by Educative](https://www.educative.io/blog/docker-kubernetes-beginners-guide#kubernetes-practice)
+- [Getting started with Docker and Kubernetes by Educative](https://www.educative.io/blog/docker-kubernetes-beginners-guide#kubernetes-practice)
 - [Tutorials on how to use minikube - Kubernetes 101](https://minikube.sigs.k8s.io/docs/tutorials/)
 - [This medium article on Developing and Deploying a NodeJS app from Docker to Kubernetes](https://medium.com/paul-zhao-projects/developing-and-deploying-a-node-js-app-from-docker-to-kubernetes-3aab28356719)
+
+## AWS EKS Resources
 - [AWS docs on how to deploy a sample app to EKS](https://docs.aws.amazon.com/eks/latest/userguide/sample-deployment.html)
 - [AWS docs on how to create a cluster using eksctl](https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html)
 - [AWS docs on creating a kubeconfig file for Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)
 - [eksctl docs](https://eksctl.io/introduction/#basic-cluster-creation)
 - [This video on how to install eksctl](https://www.youtube.com/watch?v=7SwFzYKySu0)
+
+## Official Kubernetes Architecture Documentation
+- [Kubernetes Cluster Architecture](https://kubernetes.io/docs/concepts/architecture/)
+- [Kubernetes Components Overview](https://kubernetes.io/docs/concepts/overview/components/)
+
+## CI/CD with GitHub Actions and Kubernetes
+- [Spacelift Blog: CI/CD with GitHub Actions & Kubernetes](https://spacelift.io/blog/github-actions-kubernetes)
+- [Devtron Guide: GitHub Actions CI/CD Pipeline for Kubernetes](https://devtron.ai/blog/github-actions-kubernetes-cicd-pipeline/)
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [Kubernetes Deployment Strategies](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
+
+## Additional Learning Resources
+- [Kubernetes Official Tutorials](https://kubernetes.io/docs/tutorials/)
+- [CNCF Kubernetes Training](https://www.cncf.io/certification/training/)
+- [Kubernetes Best Practices](https://kubernetes.io/docs/concepts/configuration/overview/)
