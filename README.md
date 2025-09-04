@@ -793,9 +793,7 @@ If you haven't already, complete the segment on Dockerizing a React + Express JS
 <your username>/test-web-app                               latest                                                                       77e73e5030f7   3 minutes ago   1.39GB
  ```
 
- > ⏰**Reminder**: `<your username>` refers to your Docker Hub username. Ensure you have a Docker Hub account and are logged in to Docker Hub before proceeding.
 
- 
  ## 2.1. Upload the Image to Docker Hub
  
   Before we can deploy the application using Kubernetes, we need to upload the image to Docker Hub. This is because Kubernetes will pull the image from Docker Hub when we deploy the application.
