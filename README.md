@@ -794,7 +794,7 @@ If you haven't already, complete the segment on Dockerizing a React + Express JS
  ```
 
 
- ## 2.1. Upload the Image to Docker Hub
+## 2.1. Upload the Image to Docker Hub
  
   Before we can deploy the application using Kubernetes, we need to upload the image to Docker Hub. This is because Kubernetes will pull the image from Docker Hub when we deploy the application.
 
