@@ -1238,15 +1238,10 @@ Now that you have installed `eksctl`, you can create a cluster. Run the followin
 eksctl create cluster \
   --name my-cluster \
   --region ap-southeast-1 \
-  --node-type t3.medium \
-  --nodes 2 \
-  --with-oidc \
-  --managed \
-  --timeout 45m
+  --with-oidc
 ```
 
 - `--with-oidc`: Resolves that "recommended policies" warning you received earlier by allowing pods to have their own IAM identities
-- `--managed:` Ensures AWS handles the health and updates of your nodes, making it much easier to manage than "unmanaged" EC2 instances.
 - Specific Region: By locking it to `ap-southeast-1`, you ensure your latency and data residency stay in Singapore.
 
 <sup> The above text was partially generated with the help of [ChatGPT](https://chat.openai.com/)</sup>
