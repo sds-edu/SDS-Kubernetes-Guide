@@ -102,22 +102,35 @@ Once you are done, check that minikube is installed correctly by running:
 ```bash
 minikube version
 ```
-
 It should return the version of minikube and the commit hash.
 
-Also check if you have `kubectl` installed by running:
+With admininistrative privileges, you can run:
 
 ```bash
-kubectl version
+minikube start
 ```
 
-You will need it to access your cluster. Alternatively, you can get minikube to install it for you by running:
+If you haven't sintalled `kubectl`, you can get use it within minikube by running:
 
 ```bash
 minikube kubectl -- get po -A
 ```
 
-If `kubectl version` returns both the client and server versions, you are good to go.
+It is tedious to run `minikube kubectl --` before every `kubectl` command. To avoid this, you can alias or create a symbolic link for `kubectl`. View the instructions to use [kubectl within minkube](https://minikube.sigs.k8s.io/docs/handbook/kubectl/#Linux:~:text=Use%20kubectl%20inside%20minikube) to do this.
+
+> ‼️ **Warning**: From the following sections onwards, we will be using `kubectl` to interact with the cluster. Make sure you have set up the alias or symbolic link for `kubectl` before proceeding.
+
+If the command below returns both the client and server versions, you are good to go.
+
+```bash
+kubectl version
+```
+
+Stop the cluster by running:
+
+```bash
+minikube stop
+```
 
 ### 1.3. Create a Kubernetes Cluster
 
@@ -169,13 +182,15 @@ It can be seen that there is 1 node. The status is 'ready' which means it is rea
 
 This section will help you learn the basics of `kubectl` and deploy a sample application.
 
-Deploy a sample application by running:
+We will create a [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) called `kubernetes-bootcamp`. Let's use the `gcr.io/google-samples/kubernetes-bootcamp:v1` container image. This image is taken from the Google Cloud Platform (GCP) registry.
+
+Deploy the sample application by running the command below:
 
 ```bash
 kubectl create deployment kubernetes-bootcamp --image=gcr.io/google-samples/kubernetes-bootcamp:v1
 ```
 
-This command will create a deployment called `kubernetes-bootcamp` and use the `gcr.io/google-samples/kubernetes-bootcamp:v1` container image. This image is taken from the Google Cloud Platform (GCP) registry.
+
 
 This is what happens when create a deployment:
 ![deploykubs](images/deploykubs.png)
@@ -202,7 +217,7 @@ The `kubectl` command is capable of generating a proxy, facilitating communicati
 
 <sup> This note was generated with the help of [ChatGPT](https://chat.openai.com/)</sup>
 
-Open another terminal to run the proxy:
+Open another terminal to run the proxy (remember to alias `kubectl` in the new terminal as well):
 
 ```bash
 kubectl proxy
@@ -214,9 +229,9 @@ You will see something similar to this:
 Starting to serve on 127.0.0.1:8001
 ```
 
-Take note of the port number. In this case, it is `8001`.
+Take note of the port number. In this case, it is `8001`. This runs the proxy in the background.
 
-This runs the proxy in the background, return to your original terminal window. Now the host machine (your computer) can communicate with the Kubernetes cluster. You can access the APIs hosted through the proxy endpoint. Try querying the version through the API by running:
+Return to your original terminal window. Now the host machine (your computer) can communicate with the Kubernetes cluster. You can access the APIs hosted through the proxy endpoint. Try querying the version through the API by running:
 
 ```bash
 curl http://localhost:8001/version
@@ -502,7 +517,10 @@ Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-855d5cc575-vjcmk | 
 
 > ⏰**Reminder**: You should still be in the container in order run these commands. If you are getting errors, make sure you have run the `kubectl exec -ti <PODNAME> -- bash` command.
 
- To exit the container, type `exit`.
+ To exit the container, type
+ ```bash
+ exit
+ ```
 
 ### 1.5. Expose the App Publicly
 
@@ -1110,227 +1128,8 @@ You should see the following page:
 
 Yay! You have successfully deployed your application using Kubernetes!
 
-### 2.5. CI/CD — Deploy to Kubernetes with GitHub Actions
-
-<p align="center">
-  <img src="images/img2.png" alt="GitHub Actions workflow to build, scan, push image and apply manifests to Kubernetes" width="900">
-</p>
-
-Below is a minimal example that **builds** a Docker image, **pushes** it to Docker Hub (or GHCR), and then **applies** your Kubernetes manifests to a cluster that your runner can reach (e.g., via `kubectl` using a kubeconfig secret).
-
-> Prereqs
->
-> - Kubernetes manifests committed (e.g., `k8s/deployment.yaml`, `k8s/service.yaml`).
-> - Secrets configured in your repo settings:
->   - `DOCKER_USERNAME`, `DOCKER_PASSWORD` (or a PAT for GHCR).
->   - `KUBE_CONFIG` (base64-encoded kubeconfig) **or** cloud OIDC-based auth.
-> - The image name below uses Docker Hub; adapt as needed.
-
-```yaml
-name: ci-cd-kubernetes
-
-on:
-  push:
-    branches: [ main ]
-
-jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/test-web-app:latest
-
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Write kubeconfig from secret
-        run: |
-          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
-
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v4
-        with:
-          version: 'latest'
-
-      - name: Set image in manifests (optional)
-        run: |
-          sed -i 's|image: .*$|image: '"${{ secrets.DOCKER_USERNAME }}/test-web-app:latest"'|g' k8s/deployment.yaml
-
-      - name: Apply manifests
-        run: |
-          kubectl apply -f k8s/
-          kubectl rollout status deploy/test-web-app -n default
-
-```
-
-How this maps to the architecture: the workflow pushes a new container image; your Deployment updates pods to use that image; the Service continues to route traffic across healthy pods, enabling zero(ish)-downtime rollouts.
-
-## 3. Amazon Elastic Kubernetes Service (EKS)
-
-EKS is AWS's managed Kubernetes service. It allows you to easily deploy, manage, and scale containerized applications using Kubernetes on AWS. It is a fully managed service that automates the provisioning, management, and scaling of Kubernetes clusters so that you can run containerized applications on AWS.
-
-To get started with Amazon EKS, you would need to [create an AWS account](https://aws.amazon.com/resources/create-account/).
-
-Now in your browser search for the EKS service.
-
-![Alt text](images/1.png)
-
-<sup>Figure 3.1: Search for Elastic Kubernetes Service</sup>
-
-Click on the Elastic Kubernetes Service and you will be brought to the EKS dashboard. Click on the gettting started section. You will be redirected to the AWS documentation of EKS.
-
-![Alt text](images/2.png)
-
-<sup>Figure 3.2: Click on the getting started section</sup>
-
-The documentation provides 2 ways to create a cluster. The first way is to use eksctl, a command line tool for creating clusters on EKS. The second way is to use the AWS Management Console.
-
-The fastest and easiest way to create a cluster is using `eksctl`. That is the method we will be using in this guide. This is explained in detail in the next few sections.
-
-### 3.1. Prerequisites and Installation
-
-1. First [install AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) - a unified tool to manage your AWS services.
-2. Once that is done, you will need to create a user to access the AWS services. Search for the [IAM service](https://us-east-1.console.aws.amazon.com/iam/home?region=ap-southeast-1) in your AWS Management Console. Click on it and you will be redirected to identity and access management.
-    - Under access management, select users and then create user
-    - You will have to set details of the user now
-    - Give your user a descriptive user name, like `awscli`, click next
-    - In set permissions, select **Attach policies directly** and then select `AdministratorAccess`. Click **Next**.
-    - Click **Create user**.
-    - Now that you have created a user, you will need to configure the access key and secret key. Click on the user you have just created and click on **Security credentials**.
-    - Click on create access key, select the **Command Line Interface (CLI)** use case option, confirm and click on next
-    - You may set a description tag if you want, click on create access key
-    - Download the csv file and keep it safe. You will need the access key and secret key later on.
-3. Now in your computer's terminal, run:
-
-    ```bash
-    aws configure
-    ```
-
-    You will be prompted to enter your access key and secret key. You will also be prompted to enter the region and output format. You can leave the output format as default. For the region, you can enter `ap-southeast-1` for Singapore. Check out the other regions [here](https://docs.aws.amazon.com/general/latest/gr/ec2-service.html). If you have concerns about what regions can be used in the amazon free-tier, check out the [FAQ](https://aws.amazon.com/free/free-tier-faqs/?audit=2019q1).
-
-4. Run `aws ec2 describe-regions` to check if it is working.
-5. Install `eksctl` using the instructions and `kubectl` installed. If not, follow the instructions [here](https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html).
-
-### 3.2. Create a Cluster
-
-Now that you have installed `eksctl`, you can create a cluster. Run the following command:
-> Typically takes 20 minutes to complete
-
-```bash
-eksctl create cluster \
-  --name my-cluster \
-  --region ap-southeast-1 \
-  --with-oidc
-```
-
-- `--with-oidc`: Resolves that "recommended policies" warning you received earlier by allowing pods to have their own IAM identities
-- Specific Region: By locking it to `ap-southeast-1`, you ensure your latency and data residency stay in Singapore.
-
-<sup> The above text was partially generated with the help of [ChatGPT](https://chat.openai.com/)</sup>
-
-You can view your cluster status in the [CloudFormation page](https://ap-southeast-1.console.aws.amazon.com/cloudformation/home?region=ap-southeast-1).
-
-
-If the cluster is created successfully, you should see something like this:
-
-```bash
-...
-[✓]  EKS cluster "my-cluster" in "ap-southeast-1" region is ready
-```
-
-Once the cluster is ready, update your kubectl configuration to point to AWS:
-
-```bash
-aws eks update-kubeconfig --region ap-southeast-1 --name my-cluster
-```
-
-### 3.3. View the Kuberenetes Resources
-
-View the nodes in your cluster:
-
-```bash
-kubectl get nodes
-```
-
-You can check the workloads in your cluster:
-
-```bash
-kubectl get pods -A
-```
-
-### 3.4. Deploy the Application
-
-Now that you have created a cluster, you can deploy your application.
-
-1. Create a namespace for your application:
-
-    ```bash
-    kubectl create namespace test-web-app
-    ```
-
-2. Create a deployment for your application:
-
-    ```bash
-    kubectl create deployment test-web-app --image=<your username>/test-web-app:latest -n test-web-app
-    ```
-
-3. Apply the deployment to the cluster:
-
-      ```bash
-      kubectl apply -f deployment.yaml -n test-web-app
-      ```
-
-4. View resources that exist in the namespace:
-
-    ```bash
-    kubectl get all -n test-web-app
-    ```
-
-5. Take note of an ID of one of the pods. You can get the ID by running `kubectl get pods -n test-web-app`.
-
-6. Run a shell on the pod:
-
-    ```bash
-    kubectl exec -it <pod-id> -n test-web-app -- /bin/bash
-    ```
-
-7. Check if the application is running:
-
-    ```bash
-    curl localhost:12345
-    ```
-
-8. Exit the shell:
-
-    ```bash
-    exit
-    ```
-
-9. Once you are done, delete the namespace:
-
-    ```bash
-    kubectl delete namespace test-web-app
-    ```
-
-You have deployed your application to an EKS cluster!
+> If you're interested in exploring cloud-based Kubernetes solutions, check out the [AWS EKS Resources](#aws-eks-resources) section under References low for guides on deploying to Amazon Elastic Kubernetes Service.
+> To learn how to integrate CI/CD with GitHub Actions and Kubernetes, check out the [CI/CD with GitHub Actions and Kubernetes](#cicd-with-github-actions-and-kubernetes) section under References.
 
 ## 4. References
 
@@ -1345,6 +1144,11 @@ This guide was made with the help of the following resources:
 - [Tutorials on how to use minikube - Kubernetes 101](https://minikube.sigs.k8s.io/docs/tutorials/)
 - [This medium article on Developing and Deploying a NodeJS app from Docker to Kubernetes](https://medium.com/paul-zhao-projects/developing-and-deploying-a-node-js-app-from-docker-to-kubernetes-3aab28356719)
 
+### Official Kubernetes Architecture Documentation
+
+- [Kubernetes Cluster Architecture](https://kubernetes.io/docs/concepts/architecture/)
+- [Kubernetes Components Overview](https://kubernetes.io/docs/concepts/overview/components/)
+
 ### AWS EKS Resources
 
 - [AWS docs on how to deploy a sample app to EKS](https://docs.aws.amazon.com/eks/latest/userguide/sample-deployment.html)
@@ -1352,11 +1156,6 @@ This guide was made with the help of the following resources:
 - [AWS docs on creating a kubeconfig file for Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)
 - [eksctl docs](https://eksctl.io/introduction/#basic-cluster-creation)
 - [This video on how to install eksctl](https://www.youtube.com/watch?v=7SwFzYKySu0)
-
-### Official Kubernetes Architecture Documentation
-
-- [Kubernetes Cluster Architecture](https://kubernetes.io/docs/concepts/architecture/)
-- [Kubernetes Components Overview](https://kubernetes.io/docs/concepts/overview/components/)
 
 ### CI/CD with GitHub Actions and Kubernetes
 
