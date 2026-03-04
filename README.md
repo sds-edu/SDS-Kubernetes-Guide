@@ -13,7 +13,7 @@ _**Table of Contents**_
 
 - [CS3219 SE Toolbox: Kubernetes](#cs3219-se-toolbox-kubernetes)
 - [1. A Guide to Getting Started with Kubernetes](#1-a-guide-to-getting-started-with-kubernetes)
-  - [1.0. Kubernetes Architecture — Cluster → Nodes → Pods → Containers → Services (Visual)](#10-kubernetes-architecture--cluster--nodes--pods--containers--services-visual)
+  - [1.0. Kubernetes Architecture](#10-kubernetes-architecture)
   - [1.1. Introduction](#11-introduction)
   - [1.2. Installation and Setup](#12-installation-and-setup)
   - [1.3. Create a Kubernetes Cluster](#13-create-a-kubernetes-cluster)
@@ -32,12 +32,7 @@ _**Table of Contents**_
   - [2.2. Start Minikube](#22-start-minikube)
   - [2.3. Create a Deployment](#23-create-a-deployment)
   - [2.4. Expose the Deployment](#24-expose-the-deployment)
-  - [2.5. CI/CD — Deploy to Kubernetes with GitHub Actions](#25-cicd--deploy-to-kubernetes-with-github-actions)
-- [3. Amazon Elastic Kubernetes Service (EKS)](#3-amazon-elastic-kubernetes-service-eks)
-  - [3.1. Prerequisites and Installation](#31-prerequisites-and-installation)
-  - [3.2. Create a Cluster](#32-create-a-cluster)
-  - [3.3. View the Kuberenetes Resources](#33-view-the-kuberenetes-resources)
-  - [3.4. Deploy the Application](#34-deploy-the-application)
+- [3. Clean Up](#3-clean-up)
 - [4. References](#4-references)
 
 ### 1.0. Kubernetes Architecture
@@ -116,7 +111,37 @@ If you haven't sintalled `kubectl`, you can get use it within minikube by runnin
 minikube kubectl -- get po -A
 ```
 
-It is tedious to run `minikube kubectl --` before every `kubectl` command. To avoid this, you can alias or create a symbolic link for `kubectl`. View the instructions to use [kubectl within minkube](https://minikube.sigs.k8s.io/docs/handbook/kubectl/#Linux:~:text=Use%20kubectl%20inside%20minikube) to do this.
+It is tedious to run `minikube kubectl --` before every `kubectl` command. To avoid this, you can alias or create a symbolic link for `kubectl`.
+
+#### 👉 Linux/MacOS
+
+Alias kubectl for easier usage.
+
+```bash
+alias kubectl="minikube kubectl --"
+```
+
+Alternatively, you can create a symbolic link to minikube’s binary named ‘kubectl’.
+
+```bash
+ln -s $(which minikube) /usr/local/bin/kubectl
+```
+
+#### 👉 Windows
+
+Alias kubectl for easier usage.
+
+Powershell:
+
+```powershell
+function kubectl { minikube kubectl -- $args }
+```
+
+Command Prompt:
+
+```cmd
+doskey kubectl=minikube kubectl $*
+```
 
 > ‼️ **Warning**: From the following sections onwards, we will be using `kubectl` to interact with the cluster. Make sure you have set up the alias or symbolic link for `kubectl` before proceeding.
 
@@ -136,7 +161,7 @@ minikube stop
 
 This section will guide you through the process of deploying a local Kubernetes cluster using Minikube.
 
-For this guide, we recommend the Docker driver for Minikube. If you would like to use a different driver (at your own risk), you can find the instructions [here](https://minikube.sigs.k8s.io/docs/drivers/).
+For this guide, we recommend the Docker driver for Minikube.
 
 > ⏰**Reminder**: Start the Docker daemon (by opening Docker Desktop) and enable the Kubernetes service in Docker Desktop before proceeding. ![Enable Kubs](images/enablekubs.png) <sup> Figure 1.3.1: Enabling Kubernetes in Docker Desktop </sup>
 
@@ -1130,7 +1155,7 @@ Yay 🎉! You have successfully deployed your application using Kubernetes!
 > - If you're interested in exploring cloud-based Kubernetes solutions, check out the [AWS EKS Resources](#aws-eks-resources) section under references for guides on deploying to Amazon Elastic Kubernetes Service.
 > - To learn how to integrate CI/CD with GitHub Actions and Kubernetes, check out the [CI/CD with GitHub Actions and Kubernetes](#cicd-with-github-actions-and-kubernetes) section under References.
 
-## Clean Up
+## 3. Clean Up
 
 ### 1. Delete Kubernetes Resources
 
