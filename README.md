@@ -1,5 +1,5 @@
-# SDS SE Toolbox: Kubernetes
-The SDS SE Toolbox is a collection of guides and resources to help you get started with the various tools and technologies used in software engineering.
+# SDS Toolbox: Kubernetes
+The SDS Toolbox is a collection of guides and resources to help you get started with the various tools and technologies used in software engineering.
 
 This guide will help you get started with Kubernetes. It will cover the basics of Kubernetes and how to deploy a sample application using Kubernetes. 
 
