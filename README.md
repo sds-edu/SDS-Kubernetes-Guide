@@ -190,9 +190,8 @@ Deploy the sample application by running the command below:
 kubectl create deployment kubernetes-bootcamp --image=gcr.io/google-samples/kubernetes-bootcamp:v1
 ```
 
-
-
 This is what happens when create a deployment:
+
 ![deploykubs](images/deploykubs.png)
 
 <sup> Figure 1.4.1: Deploying an application </sup>
@@ -330,7 +329,7 @@ RawContentLength  : 7041
 
 </details>
 
-Yay! You just accessed the pod through the API.
+Yay 🎉! You just accessed the pod through the API.
 
 #### 1.4.1 Explore the Application
 
@@ -718,7 +717,7 @@ NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
 kubernetes-bootcamp   4/4     4            4           7m37s
 ```
 
-Yay! You now have 4 replicas of the application up and running. Do you think the number of pods has changed? Let's check:
+Yay 🎉! You now have 4 replicas of the application up and running. Do you think the number of pods has changed? Let's check:
 
 ```bash
 kubectl get pods -o wide
@@ -930,7 +929,7 @@ kubectl rollout status deployments/kubernetes-bootcamp
 
 This should return a messaging stating that the deployment was successfully rolled out. View the current image of the app by running `kubectl describe pods` and you should see that the image is now `jocatalin/kubernetes-bootcamp:v2`.
 
-Yay! You have successfully completed this section on the basics of Kubernetes. You can now move on to the next section to learn about how to deploy a React + Express JS application using Kubernetes + Docker.
+Yay 🎉! You have successfully completed this section on the basics of Kubernetes. You can now move on to the next section to learn about how to deploy a React + Express JS application using Kubernetes + Docker.
 
 ## 2. Deploying a React + Express JS Application using Kubernetes + Docker
 
@@ -1126,10 +1125,10 @@ You should see the following page:
 
 <sup> Figure 2.4.1 The sample react website as deployed by Kubernetes. </sup>
 
-Yay! You have successfully deployed your application using Kubernetes!
+Yay 🎉! You have successfully deployed your application using Kubernetes!
 
-> If you're interested in exploring cloud-based Kubernetes solutions, check out the [AWS EKS Resources](#aws-eks-resources) section under References low for guides on deploying to Amazon Elastic Kubernetes Service.
-> To learn how to integrate CI/CD with GitHub Actions and Kubernetes, check out the [CI/CD with GitHub Actions and Kubernetes](#cicd-with-github-actions-and-kubernetes) section under References.
+> - If you're interested in exploring cloud-based Kubernetes solutions, check out the [AWS EKS Resources](#aws-eks-resources) section under references for guides on deploying to Amazon Elastic Kubernetes Service.
+> - To learn how to integrate CI/CD with GitHub Actions and Kubernetes, check out the [CI/CD with GitHub Actions and Kubernetes](#cicd-with-github-actions-and-kubernetes) section under References.
 
 ## Clean Up
 
