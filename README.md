@@ -1,5 +1,5 @@
-# CS3219 SE Toolbox: Kubernetes
-The CS3219 SE Toolbox is a collection of guides and resources to help you get started with the various tools and technologies used CS3219 - Software Engineering Principles and Patterns.
+# SDS SE Toolbox: Kubernetes
+The SDS SE Toolbox is a collection of guides and resources to help you get started with the various tools and technologies used in software engineering.
 
 This guide will help you get started with Kubernetes. It will cover the basics of Kubernetes and how to deploy a sample application using Kubernetes. Finally, it will cover how to use Amazon Elastic Kubernetes Service (EKS).
 
@@ -11,7 +11,7 @@ This guide will help you get started with Kubernetes. It will cover the basics o
 
 _**Table of Contents**_
 
-- [CS3219 SE Toolbox: Kubernetes](#cs3219-se-toolbox-kubernetes)
+- [SDS SE Toolbox: Kubernetes](#sds-se-toolbox-kubernetes)
 - [1. A Guide to Getting Started with Kubernetes](#1-a-guide-to-getting-started-with-kubernetes)
   - [1.0. Kubernetes Architecture](#10-kubernetes-architecture)
   - [1.1. Introduction](#11-introduction)
@@ -958,7 +958,7 @@ Yay 🎉! You have successfully completed this section on the basics of Kubernet
 
 ## 2. Deploying a React + Express JS Application using Kubernetes + Docker
 
-_Please refer to the Docker guide for CS3219 for more information on how to build a React + Express JS application._ This section will focus on how to deploy the application using Kubernetes and Docker.
+_Please refer to the SDS Docker guide for more information on how to build a React + Express JS application._ This section will focus on how to deploy the application using Kubernetes and Docker.
 
 We have learnt how Docker allows you to package an application and its dependencies into a standardized container, which includes everything needed to run the application – code, runtime, libraries, and settings. We have also learnt that Kubernetes automates the deployment, scaling, and management of containerized applications.
 
@@ -974,7 +974,7 @@ Before we begin, ensure that you have the following installed:
 
 > ⏰**Reminder**: Start the Docker daemon (by opening Docker Desktop) and enable the Kubernetes service in Docker Desktop before proceeding.
 
-If you haven't already, complete the segment on Dockerizing a React + Express JS application before proceeding. This can be found in the Docker guide for CS3219.
+If you haven't already, complete the segment on Dockerizing a React + Express JS application before proceeding. This can be found in the SDS Docker guide.
 
  Remember to build the image for the application before proceeding. If you followed the instructions from the aforementioned guide, you will have an image called `<your username>/test-web-app` in your local registry. You can check this by running `docker images`.
 
