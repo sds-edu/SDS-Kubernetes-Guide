@@ -1,7 +1,7 @@
 # SDS SE Toolbox: Kubernetes
 The SDS SE Toolbox is a collection of guides and resources to help you get started with the various tools and technologies used in software engineering.
 
-This guide will help you get started with Kubernetes. It will cover the basics of Kubernetes and how to deploy a sample application using Kubernetes. Finally, it will cover how to use Amazon Elastic Kubernetes Service (EKS).
+This guide will help you get started with Kubernetes. It will cover the basics of Kubernetes and how to deploy a sample application using Kubernetes. 
 
 ## 1. A Guide to Getting Started with Kubernetes
 
