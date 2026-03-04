@@ -886,7 +886,7 @@ kubectl describe pods
 
 The image should be `gcr.io/google-samples/kubernetes-bootcamp:v1`.
 
-Update the image of the deployment to [jocatalin/kubernetes-bootcamp:v2](https://hub.docker.com/layers/jocatalin/kubernetes-bootcamp/v2/images/sha256-fb1a3ced00cecfc1f83f18ab5cd14199e30adc1b49aa4244f5d65ad3f5feb2a5?context=explore):
+Update the image of the deployment to [jocatalin/kubernetes-bootcamp:v2](https://hub.docker.com/layers/jocatalin/kubernetes-bootcamp/v2/images):
 
 ```bash
 kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=jocatalin/kubernetes-bootcamp:v2
