@@ -1131,6 +1131,48 @@ Yay! You have successfully deployed your application using Kubernetes!
 > If you're interested in exploring cloud-based Kubernetes solutions, check out the [AWS EKS Resources](#aws-eks-resources) section under References low for guides on deploying to Amazon Elastic Kubernetes Service.
 > To learn how to integrate CI/CD with GitHub Actions and Kubernetes, check out the [CI/CD with GitHub Actions and Kubernetes](#cicd-with-github-actions-and-kubernetes) section under References.
 
+## Clean Up
+
+### 1. Delete Kubernetes Resources
+
+```bash
+# Delete the services
+kubectl delete service kubernetes-bootcamp
+kubectl delete service test-web-app
+
+# Delete the deployments
+kubectl delete deployment kubernetes-bootcamp
+kubectl delete deployment test-web-app
+```
+
+### 2. Stop Background Processes
+
+If you still have any active proxy or service tunnels running in separate terminal, press CTRL+C to terminate them.
+
+### 3. Stop and Delete the Minikube Cluster
+To free up the CPU and memory resources allocated to the local cluster stop Minikube.
+
+```bash
+minikube stop
+
+# (Optional) Delete the cluster completely to remove all traces
+minikube delete
+```
+
+### 4. Clean Up Docker Images (Optional)
+
+If you did not run `minikube delete`, the Docker images will still be present in your local registry. You can keep them if you want to experiment with Kubernetes more. However, if you want to free up space, you can remove the Docker images pulled and built during the tutorial.
+
+```bash
+docker rmi gcr.io/google-samples/kubernetes-bootcamp:v1
+docker rmi jocatalin/kubernetes-bootcamp:v2
+
+# Remove custom React+Express app image
+# (Replace <your username> with actual Docker Hub username)
+docker rmi <your username>/test-web-app:latest
+docker rmi <your username>/test-web-app
+```
+
 ## 4. References
 
 This guide was made with the help of the following resources:
