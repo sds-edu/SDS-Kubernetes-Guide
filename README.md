@@ -1235,3 +1235,7 @@ This guide was made with the help of the following resources:
 - [Kubernetes Official Tutorials](https://kubernetes.io/docs/tutorials/)
 - [CNCF Kubernetes Training](https://www.cncf.io/certification/training/)
 - [Kubernetes Best Practices](https://kubernetes.io/docs/concepts/configuration/overview/)
+
+## AI Declaration
+
+Some parts of this guide were structured, formatted, and refined with the assistance of `ChatGPT` and `Github Copilot` . The model was used to draft technical explanations and generate code snippets. All code snippets used in the guide and command sequences were reviewed, implemented, and tested by the teaching team to ensure accuracy and functionality.
