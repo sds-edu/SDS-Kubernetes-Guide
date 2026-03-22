@@ -41,7 +41,8 @@ _**Table of Contents**_
 
 <p align="center">
   <img src="images/img1.webp" alt="Kubernetes architecture overview" width="800">
-  <br>Image source: <https://www.simform.com/blog/kubernetes-architecture>
+  <br>
+  Image source: <a href="https://www.simform.com/blog/kubernetes-architecture">Simform - Kubernetes Architecture Blog</a>
 </p>
 
 **Read the diagram left-to-right:** A *Kubernetes cluster* contains a **control plane** and one or more **worker nodes**.
