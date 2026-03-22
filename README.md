@@ -41,7 +41,7 @@ _**Table of Contents**_
 
 <p align="center">
   <img src="images/img1.webp" alt="Kubernetes architecture overview" width="800">
-  <br>Image source: https://www.simform.com/blog/kubernetes-architecture/
+  <br>Image source: <https://www.simform.com/blog/kubernetes-architecture>
 </p>
 
 **Read the diagram left-to-right:** A *Kubernetes cluster* contains a **control plane** and one or more **worker nodes**.
@@ -58,7 +58,7 @@ A **Service** gives a stable network identity to a set of pods and can expose th
 
 To a certain extent, Docker is widely used as a tool that makes it easy to package and deploy applications in containers. This ensures that applications behave consistently whether you are using them on your laptop or in the cloud.
 
-However, as the demands of scalability and intricacy increase, the containerised Docker may not fully meet these requirements. This is where orchestration tools like Kubernetes come in. Many organisations are now adopting Kubernetes as an advanced abstraction layer to efficiently manage their containerised infrastructure. This simplifies workflows and enables teams to accelerate their processes.
+However, as the demands of scalability and intricacy increase, managing standalone Docker containers may not fully meet these requirements. This is where orchestration tools like Kubernetes come in. Many organisations are now adopting Kubernetes as an advanced abstraction layer to efficiently manage their containerised infrastructure. This simplifies workflows and enables teams to accelerate their processes.
 
 <sup> The above text was partially generated with the help of [ChatGPT](https://chat.openai.com/)</sup>
 
