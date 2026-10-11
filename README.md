@@ -83,11 +83,25 @@ Kubernetes simplifies the deployment process for applications. It also provides 
 
 ### 1.2. Installation and Setup
 
-The most common ways to run a Kubernetes cluster locally are using [Minikube](https://minikube.sigs.k8s.io/docs/) **or** [Docker Desktop](https://www.docker.com/products/docker-desktop). This tutorial will focus on Minikube.
+There are two common ways to run a Kubernetes cluster locally:
+
+1. **[Minikube](https://minikube.sigs.k8s.io/docs/)**: a standalone tool that creates and manages a local Kubernetes cluster for you. ✅ **This guide uses Minikube.**
+2. **[Docker Desktop](https://www.docker.com/products/docker-desktop)'s built-in Kubernetes**: a cluster bundled with Docker Desktop, switched on via *Settings → Kubernetes → Enable Kubernetes*. We will **not** use this method, so you do not** need to enable that setting.
 
 Minikube serves as a local Kubernetes solution, with a primary emphasis on simplifying Kubernetes learning and development.
 
-All you need is [Docker](https://www.docker.com/products/docker-desktop) (or similarly compatible) container **or** a [Virtual Machine](https://www.virtualbox.org/wiki/Downloads), and [Minikube](https://minikube.sigs.k8s.io/docs/) will take care of the rest.
+**Minikube drivers**
+
+Minikube needs somewhere to run the cluster. It gets this from a [driver](https://minikube.sigs.k8s.io/docs/drivers/), which is either a container engine or a virtual machine (VM) manager. Some common drivers are:
+
+| Driver | Where the cluster runs |
+| --- | --- |
+| `docker` ✅ *(used in this guide)* | Inside a Docker container |
+| `virtualbox` | Inside a VirtualBox VM |
+| `hyperv` | Inside a Hyper-V VM (Windows only) |
+| `kvm2` | Inside a KVM VM (Linux only) |
+
+> 💡 **Note**: The Minikube **Docker driver** is not the same as **method 2** (Docker Desktop's built-in Kubernetes). With the Docker driver, Minikube only uses Docker to start a container, then sets up its own Kubernetes cluster inside that container. Docker Desktop's Kubernetes feature is not involved.
 
 You should have installed Docker for one of the previous tutorials. If you haven't, you can find the installation instructions [here](https://docs.docker.com/get-docker/).
 
@@ -100,13 +114,21 @@ minikube version
 ```
 It should return the version of minikube and the commit hash.
 
-With admininistrative privileges, you can run:
+> ⏰**Reminder**: Because we are using the Docker driver, the Docker daemon must be running **before** you run `minikube start`. Minikube asks the daemon to create the container that the cluster lives in, so if the daemon is not running, `minikube start` fails with an error saying Docker is not running.
+> - **Windows/macOS**: open Docker Desktop and wait until it shows that the engine is running.
+> - **Linux**: start the Docker service (e.g. `sudo systemctl start docker`), or open Docker Desktop if you use it.
+>
+> VM drivers such as `virtualbox` or `hyperv` do not need Docker at all.
+
+From a terminal with administrative privileges (but not logged in as root), run:
 
 ```bash
-minikube start
+minikube start --driver=docker
 ```
 
-If you haven't sintalled `kubectl`, you can get use it within minikube by running:
+If you leave out `--driver`, Minikube picks a driver automatically based on what is installed on your machine. Passing `--driver=docker` makes sure it uses Docker.
+
+If you haven't installed `kubectl`, you can use it within minikube by running:
 
 ```bash
 minikube kubectl -- get po -A
@@ -164,7 +186,7 @@ This section will guide you through the process of deploying a local Kubernetes 
 
 For this guide, we recommend the Docker driver for Minikube.
 
-> ⏰**Reminder**: Start the Docker daemon (by opening Docker Desktop) and enable the Kubernetes service in Docker Desktop before proceeding. ![Enable Kubs](images/enablekubs.png) <sup> Figure 1.3.1: Enabling Kubernetes in Docker Desktop </sup>
+> ⏰**Reminder**: Make sure the Docker daemon is running (e.g. by opening Docker Desktop) before proceeding. See [section 1.2](#12-installation-and-setup) for details. You do **not** need to enable Kubernetes in Docker Desktop.
 
 Start the cluster by running:
 
@@ -295,7 +317,7 @@ RawContentLength  : 263
 
 </details>
 
-The API creates and endpoint for each pod in the cluster. To access the pod, you need to know its name. You can get the name of the pod by running:
+The API creates an endpoint for each pod in the cluster. To access the pod, you need to know its name. You can get the name of the pod by running:
 
 ```bash
 kubectl get pods
@@ -612,7 +634,7 @@ We will refer to it as `<MINIKUBE_IP>`. Now you can try to access the service:
 curl <MINIKUBE_IP>:<NODEPORT>
 ```
 
-If you are using Docker Desktop (which you most likely are). You **might** see this error:
+If you are using the Docker driver on Windows or macOS (which you most likely are), you **might** see this error:
 
 ```bash
 curl : Unable to connect to the remote server
@@ -624,7 +646,7 @@ At line:1 char:1
     + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
 ```
 
-This is because of networking restrictions in Docker Desktop. You can't directly reach pods from your host by default. To overcome this, execute
+This is because, with the Docker driver on Windows and macOS, the Minikube node runs inside Docker Desktop's internal Linux VM, so the `<MINIKUBE_IP>` address can't be reached directly from your host. To overcome this, execute
 
 ```bash
 minikube service kubernetes-bootcamp
@@ -870,7 +892,7 @@ minikube ip
 
 If this works for you, try executing the command multiple times, you should hit a different pod with every request. This is because the service randomly distributes requests to each pod.
 
-If you are using Docker Desktop (which you most likely are). You **might** encounter an error "Unable to connect to the remote server". This is because of networking restrictions in Docker Desktop. You can't directly reach pods from your host by default. See [section 1.5](#15-expose-the-app-publicly) on how to overcome this error.
+If you are using the Docker driver on Windows or macOS (which you most likely are), you **might** encounter an error "Unable to connect to the remote server". This is because the `<MINIKUBE_IP>` address can't be reached directly from your host with this setup. See [section 1.5](#15-expose-the-app-publicly) on how to overcome this error.
 
 Run the command multiple times to see how the service randomly distributes requests to each pod.
 
@@ -959,7 +981,7 @@ Yay 🎉! You have successfully completed this section on the basics of Kubernet
 
 ## 2. Deploying a React + Express JS Application using Kubernetes + Docker
 
-_Please refer to the SDS Docker guide for more information on how to build a React + Express JS application._ This section will focus on how to deploy the application using Kubernetes and Docker.
+_Please refer to the [SDS Docker guide](https://sds-edu.github.io/SDS-Docker-Guide/) for more information on how to build a React + Express JS application._ This section will focus on how to deploy the application using Kubernetes and Docker.
 
 We have learnt how Docker allows you to package an application and its dependencies into a standardized container, which includes everything needed to run the application – code, runtime, libraries, and settings. We have also learnt that Kubernetes automates the deployment, scaling, and management of containerized applications.
 
@@ -973,15 +995,15 @@ Before we begin, ensure that you have the following installed:
 - [Minikube](https://minikube.sigs.k8s.io/docs/start/)
 - [Node.js LTS](https://nodejs.org/en/download/)
 
-> ⏰**Reminder**: Start the Docker daemon (by opening Docker Desktop) and enable the Kubernetes service in Docker Desktop before proceeding.
+> ⏰**Reminder**: Make sure the Docker daemon is running (e.g. by opening Docker Desktop) before proceeding. You do **not** need to enable Kubernetes in Docker Desktop.
 
-If you haven't already, complete the segment on Dockerizing a React + Express JS application before proceeding. This can be found in the SDS Docker guide.
+If you haven't already, complete the segment on Dockerizing a React + Express JS application before proceeding. This can be found in the [SDS Docker guide](https://sds-edu.github.io/SDS-Docker-Guide/).
 
- Remember to build the image for the application before proceeding. If you followed the instructions from the aforementioned guide, you will have an image called `<your username>/test-web-app` in your local registry. You can check this by running `docker images`.
+ Remember to build the image for the application before proceeding. If you followed the instructions from the aforementioned guide, you will have an image called `<local name>/test-web-app` in your local registry, where `<local name>` is whatever name you used when building it. You can check this by running `docker images`.
 
  ```bash
  REPOSITORY                                                TAG                                                                          IMAGE ID       CREATED         SIZE
-<your username>/test-web-app                               latest                                                                       77e73e5030f7   3 minutes ago   1.39GB
+<local name>/test-web-app                                  latest                                                                       77e73e5030f7   3 minutes ago   1.39GB
  ```
 
 ### 2.1. Upload the Image to Docker Hub
@@ -994,19 +1016,25 @@ Open [Docker Hub](https://hub.docker.com/) in your browser. Create a repository 
 
 <sup> Figure 2.1.1 Once you click on the `Create` button, you will be brought to this page. </sup>
 
+> 📝**Note**: From here on, `<your username>` means your **Docker Hub username**, not your computer's username or the name you gave your local image. For example, if your Docker Hub username is `john123`, your repository will be `john123/test-web-app`.
+
 Connect your device to Docker Hub by running the following command in your terminal and follow the instructions to log in:
 
 ```bash
 docker login
 ```
 
-Upon creating your new repository, go back to the command line and run the following command to tag your image:
+Upon creating your new repository, go back to the command line. `docker push` uses the part of the image name before the `/` to decide which Docker Hub account to upload to, so the image must be named `<your username>/test-web-app`. If it is named after any other account (e.g. your `<local name>`), Docker will reject the push with `denied: requested access to the resource is denied`.
+
+Run the following command to tag your local image with your Docker Hub username:
 
 ```bash
-docker tag <your username>/test-web-app <your username>/test-web-app:latest
+docker tag <local name>/test-web-app <your username>/test-web-app:latest
 ```
 
-This command takes the existing Docker image with the name `<your username>/test-web-app` and gives it a new tag called `<your username>/test-web-app:latest`, essentially marking it as the latest version of that image.
+This command does not copy the image. It gives the existing image `<local name>/test-web-app` a second name, `<your username>/test-web-app:latest`, which points to your Docker Hub repository and marks it as the latest version. If you run `docker images` again, you will see both names with the same `IMAGE ID`.
+
+> 📝**Note**: If your local image is already called `<your username>/test-web-app`, you can skip this step.
 
 Now, push your image to Docker Hub:
 
@@ -1052,6 +1080,8 @@ This will start a local Kubernetes cluster.
 ### 2.3. Create a Deployment
 
 We will define a YAML file to create a deployment for our application. Create a file called `deployment.yaml` and add the following code to it:
+
+> 📝**Note**: You can place `deployment.yaml` anywhere, since `kubectl` simply reads the file and sends its contents to the cluster. However, we recommend placing it in your `test-web-app` project folder (next to your `Dockerfile`) so that the app and its Kubernetes configuration are kept together.
 
 ```yaml
 apiVersion: apps/v1
@@ -1100,11 +1130,13 @@ spec:
 
 </details>
 
-Now, run the following command to create the deployment:
+Now, from the folder containing `deployment.yaml`, run the following command to create the deployment:
 
 ```bash
 kubectl create -f deployment.yaml
 ```
+
+If you are in a different folder, replace `deployment.yaml` with the path to the file instead (e.g. `kubectl create -f path/to/test-web-app/deployment.yaml`).
 
 After sometime run the command to get the deployments and pods:
 
@@ -1192,10 +1224,10 @@ If you did not run `minikube delete`, the Docker images will still be present in
 docker rmi gcr.io/google-samples/kubernetes-bootcamp:v1
 docker rmi jocatalin/kubernetes-bootcamp:v2
 
-# Remove custom React+Express app image
-# (Replace <your username> with actual Docker Hub username)
+# Remove custom React+Express app image (both of its names from section 2.1)
+# (Replace <your username> with your Docker Hub username, and <local name> with the name you built the image with)
 docker rmi <your username>/test-web-app:latest
-docker rmi <your username>/test-web-app
+docker rmi <local name>/test-web-app
 ```
 
 ## 4. References
